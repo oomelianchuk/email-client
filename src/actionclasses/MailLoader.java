@@ -64,7 +64,6 @@ public class MailLoader implements BackgroundAction, Runnable {
 		ArrayList<MessageContainer> messages = new ArrayList<MessageContainer>();
 		for (int i = 0; i < data.getFolders().size(); i++) {
 			messages = connectionManager.downloadMailAfterDate(protocol, data.getUserName(),
-					data.getFolders().get(i).getName(),
 					data.getFolders().get(i).getName().replaceAll("\\[", "").replaceAll("\\]", ""),
 					data.getLastUpdateData() == null ? new Date() : data.getLastUpdateData(), logger);
 			// if new message is loaded for any folder, check other folders for new messages
@@ -74,7 +73,6 @@ public class MailLoader implements BackgroundAction, Runnable {
 				messages = new ArrayList<MessageContainer>();
 				for (int j = 0; j < data.getFolders().size(); j++) {
 					messages = connectionManager.downloadMailAfterDate(protocol, data.getUserName(),
-							data.getFolders().get(j).getName(),
 							data.getFolders().get(j).getName().replaceAll("\\[", "").replaceAll("\\]", ""),
 							data.getLastUpdateData() == null ? new Date() : data.getLastUpdateData(), logger);
 					data.getFolders().get(j).getMessages().addAll(messages);

@@ -53,11 +53,31 @@ public class MessageContainer implements Comparable<MessageContainer> {
 		this.hasAttachment = hasAttachment;
 	}
 
+	public MessageContainer(Message message, String path) throws IOException, MessagingException {
+		this(message);
+		this.path = path;
+		messageText = new StringBuffer();
+		htmlFiles = new ArrayList<String>();
+		attachments = new ArrayList<String>();
+		this.pathToMessageBody = path + "/messageBody" + message.getMessageNumber() + ".txt";
+		if (message.getContent() instanceof Multipart) {
+			Multipart content = (Multipart) message.getContent();
+			multiMessage(content);
+		} else {
+			String charset = message.getContentType();
+			writeFile(message.getContent().toString(), charset,
+					pathToMessageBody.replaceAll("\\]", "").replaceAll("\\[", ""));
+		}
+	}
+
 	public MessageContainer(Message message) throws MessagingException {
-		this.from = InternetAddress.toString(message.getFrom());
-		this.to = InternetAddress.toString(message.getAllRecipients());
-		this.subject = message.getSubject();
-		this.recievedDate = message.getReceivedDate() == null ? message.getSentDate() : message.getReceivedDate();
+		this.from = InternetAddress.toString(message.getFrom()) == null ? ""
+				: InternetAddress.toString(message.getFrom());
+		this.to = InternetAddress.toString(message.getAllRecipients()) == null ? ""
+				: InternetAddress.toString(message.getAllRecipients());
+		this.subject = message.getSubject() == null ? "" : message.getSubject();
+		this.recievedDate = message.getReceivedDate() != null ? message.getReceivedDate()
+				: message.getSentDate() != null ? message.getSentDate() : new Date(0);
 		this.seen = message.getFlags().contains(Flag.SEEN);
 	}
 
@@ -89,29 +109,16 @@ public class MessageContainer implements Comparable<MessageContainer> {
 		this.subject = subject;
 	}
 
-	public MessageContainer(Message message, String path) throws IOException, MessagingException {
-		this(message);
-		this.path = path;
-		messageText = new StringBuffer();
-		htmlFiles = new ArrayList<String>();
-		attachments = new ArrayList<String>();
-		this.pathToMessageBody = path + "/messageBody" + message.getMessageNumber() + ".txt";
-		if (message.getContent() instanceof Multipart) {
-			Multipart content = (Multipart) message.getContent();
-			multiMessage(content);
-		} else {
-			String charset = message.getContentType();
-			writeFile(message.getContent().toString(), charset,
-					pathToMessageBody.replaceAll("\\]", "").replaceAll("\\[", ""));
-		}
-	}
-
 	public void setSeen(boolean seen) {
 		this.seen = seen;
 	}
 
 	public Date getReceivedDate() {
 		return recievedDate;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	private void multiMessage(Multipart content) {

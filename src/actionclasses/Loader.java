@@ -53,7 +53,7 @@ public class Loader implements BackgroundAction {
 				boolean foldersChecked = false;
 				boolean mailChecked = false;
 				// check connections
-				connectionManager = new ConnectionManager();
+				connectionManager = new ConnectionManager(data);
 				boolean passwordSaved = data.getPassword() != null;
 				FrameManager.logger.info("password saved " + passwordSaved);
 
@@ -239,10 +239,8 @@ public class Loader implements BackgroundAction {
 
 	private void updateMail(AccountData data, ConnectionManager connectionManager, String protocol) {
 		for (MailFolder folder : data.getFolders()) {
-			folder.getMessages()
-					.addAll(connectionManager.downloadMailAfterDate(protocol, data.getUserName(), folder.getName(),
-							folder.getName().replaceAll("\\[", "").replaceAll("\\]", ""), data.getLastUpdateData(),
-							null));
+			folder.getMessages().addAll(connectionManager.downloadMailAfterDate(protocol, data.getUserName(),
+					folder.getName().replaceAll("\\[", "").replaceAll("\\]", ""), data.getLastUpdateData(), null));
 		}
 	}
 

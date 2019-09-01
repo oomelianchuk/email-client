@@ -96,7 +96,7 @@ public class FrameManager {
 
 	public void createAccount(AccountData data) {
 		logger.info("create account for " + data.toString());
-		ConnectionManager connectionManager = new ConnectionManager();
+		ConnectionManager connectionManager = new ConnectionManager(data);
 		boolean popShould = data.getPopServer() != null;
 		boolean imapShould = data.getImapServer() != null;
 		boolean smtpShould = data.getSmtpServer() != null;
