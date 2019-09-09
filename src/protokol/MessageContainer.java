@@ -3,14 +3,15 @@ package protokol;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -25,52 +26,48 @@ import javax.mail.internet.InternetAddress;
 import org.apache.commons.io.FileUtils;
 
 import data.AccountData;
+import data.GlobalDataContainer;
 import data.MailFolder;
 import gui.FrameManager;
 
-public class MessageContainer implements Comparable<MessageContainer> {
+public class MessageContainer implements Comparable<MessageContainer>, Serializable {
 	private String path;
 	private String from;
 	private String to;
 	private String subject;
 	private Date recievedDate;
-	private String pathToMessageBody;
+	// private String pathToMessageBody;
 	private ArrayList<String> htmlFiles = new ArrayList<String>();
 	private ArrayList<String> attachments = new ArrayList<String>();
 	private StringBuffer messageText;
-	private boolean hasAttachment;
+	// private boolean hasAttachment;
 	private boolean seen;
-
-	public boolean isHasAttachment() {
-		return hasAttachment;
-	}
 
 	public boolean isSeen() {
 		return seen;
 	}
 
-	public void setHasAttachment(boolean hasAttachment) {
-		this.hasAttachment = hasAttachment;
-	}
-
-	public MessageContainer(Message message, String path) throws IOException, MessagingException {
+	public MessageContainer(Message message, String userName, String folderName)
+			throws IOException, MessagingException {
 		this(message);
-		this.path = path;
-		messageText = new StringBuffer();
-		htmlFiles = new ArrayList<String>();
-		attachments = new ArrayList<String>();
-		this.pathToMessageBody = path + "/messageBody" + message.getMessageNumber() + ".txt";
+		generatePath(userName, folderName);
+		// this.pathToMessageBody = path + "/messageBody" + message.getMessageNumber() +
+		// ".txt";
 		if (message.getContent() instanceof Multipart) {
 			Multipart content = (Multipart) message.getContent();
+			System.out.println("multipart");
 			multiMessage(content);
 		} else {
 			String charset = message.getContentType();
-			writeFile(message.getContent().toString(), charset,
-					pathToMessageBody.replaceAll("\\]", "").replaceAll("\\[", ""));
+			getMessageText(message);
 		}
+		serialize();
 	}
 
-	public MessageContainer(Message message) throws MessagingException {
+	private MessageContainer(Message message) throws MessagingException {
+		messageText = new StringBuffer();
+		htmlFiles = new ArrayList<String>();
+		attachments = new ArrayList<String>();
 		this.from = InternetAddress.toString(message.getFrom()) == null ? ""
 				: InternetAddress.toString(message.getFrom());
 		this.to = InternetAddress.toString(message.getAllRecipients()) == null ? ""
@@ -87,7 +84,154 @@ public class MessageContainer implements Comparable<MessageContainer> {
 		this.subject = subject;
 		this.recievedDate = recievedDate;
 		this.seen = seen;
-		this.pathToMessageBody = path;
+	}
+
+	public void serialize() throws IOException {
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path + "/message.out"));
+		out.writeObject(this);
+		out.close();
+	}
+
+	private void generatePath(String userName, String folderName) {
+		String messageXMLfolderName = from + subject + recievedDate;
+		if (messageXMLfolderName.equals("")) {
+			messageXMLfolderName = "defaultFolder";
+		} else {
+			messageXMLfolderName = Integer.toString(messageXMLfolderName.hashCode());
+		}
+		this.path = "src/" + userName + "/" + folderName + "/" + messageXMLfolderName;
+		try {
+			Files.createDirectories(Paths.get(path));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void multiMessage(Multipart content) {
+		try {
+			for (int i = 0; i < content.getCount(); i++) {
+				BodyPart part = content.getBodyPart(i);
+				parseMessagePart(part);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void parseMessagePart(Part part) throws MessagingException, IOException {
+		if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) {
+			// hasAttachment = true;
+			attachments.add(path + "/" + part.getFileName());
+		} else if (part.isMimeType("text/html")) {
+			String charset = part.getContentType();
+			htmlFiles.add(path + "/email" + htmlFiles.size() + ".html");
+			writeHtmlFile(part, htmlFiles.get(htmlFiles.size() - 1));
+		} else if (part.getContent() instanceof Multipart) {
+			multiMessage((Multipart) part.getContent());
+		} else if (part.isMimeType("message/rfc822")) {
+			messageText.append("<Forwarded Message>:");
+			parseMessagePart((Part) part.getContent());
+		} else {
+			String charset = part.getContentType();
+			if (part.getContent().getClass().equals(String.class)) {
+				getMessageText(part);
+			}
+		}
+	}
+
+	private void getMessageText(Part part) {
+		System.out.println("write file");
+		try {
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(part.getInputStream(), "Windows-1251"));
+			String line = in.readLine();
+			System.out.println(part.getContentType());
+			System.out.println(line);
+			while (line != null) {
+				messageText.append(line + "\n");
+				line = in.readLine();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void writeHtmlFile(Part part, String path) {
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(part.getInputStream(), "Windows-1251"));
+			BufferedWriter out;
+			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path, false), "Windows-1251"));
+
+			String line = in.readLine();
+			while (line != null) {
+				out.write(line + "\n");
+				line = in.readLine();
+			}
+			out.close();
+		} catch (IOException | MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+//TODO: separate
+	public void delete() throws IOException {
+
+		MailFolder folder = GlobalDataContainer.getAccountByName(getAccountName()).getFolderByName(getFolderName());
+		folder.getMessages().remove(this);
+		FrameManager.connections.get(getAccountName()).deleteMessage(getFolderName(), this);
+		FileUtils.deleteDirectory(new File(path));
+
+	}
+
+	public String getFolderName() {
+		return path.split("/")[2];
+	}
+
+	public String getAccountName() {
+		return path.split("/")[1];
+	}
+
+	public String getMessageText() {
+		return messageText.toString();
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public String getFrom() {
+		return from;
+	}
+
+	public String getTo() {
+		return to;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public ArrayList<String> getHtmlFiles() {
+		return htmlFiles;
+	}
+
+	public ArrayList<String> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(ArrayList<String> attachments) {
+		this.attachments = attachments;
+	}
+
+	public void setHtmlFiles(ArrayList<String> htmlFiles) {
+		this.htmlFiles = htmlFiles;
 	}
 
 	public void addAttachment(String fileName) {
@@ -121,147 +265,6 @@ public class MessageContainer implements Comparable<MessageContainer> {
 		this.path = path;
 	}
 
-	private void multiMessage(Multipart content) {
-		try {
-			for (int i = 0; i < content.getCount(); i++) {
-				BodyPart part = content.getBodyPart(i);
-				parseMessagePart(part);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void parseMessagePart(Part part) throws MessagingException, IOException {
-		if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) {
-			hasAttachment = true;
-			attachments.add(path + "/" + part.getFileName());
-		} else if (part.isMimeType("text/html")) {
-			String charset = part.getContentType();
-			htmlFiles.add(path + "/email" + htmlFiles.size() + ".html");
-			writeFile(part.getContent().toString(), charset, htmlFiles.get(htmlFiles.size() - 1));
-		} else if (part.getContent() instanceof Multipart) {
-			multiMessage((Multipart) part.getContent());
-		} else if (part.isMimeType("message/rfc822")) {
-			messageText.append("<Forwarded Message>:");
-			parseMessagePart((Part) part.getContent());
-		} else {
-			String charset = part.getContentType();
-			if (part.getContent().getClass().equals(String.class)) {
-				writeFile(part.getContent().toString(), charset, pathToMessageBody);
-			}
-		}
-	}
-
-	private void writeFile(String text, String charset, String file) {
-		Charset cha = StandardCharsets.UTF_8;
-		if (charset.contains("iso-8859-1")) {
-			cha = StandardCharsets.ISO_8859_1;
-
-		} else if (charset.contains("utf-8")) {
-			cha = StandardCharsets.UTF_8;
-
-		} else if (charset.contains("us-ascii")) {
-			cha = StandardCharsets.US_ASCII;
-
-		} else if (charset.contains("utf-16")) {
-			cha = StandardCharsets.UTF_16;
-
-		} else if (charset.contains("utf-16be")) {
-			cha = StandardCharsets.UTF_16BE;
-
-		} else if (charset.contains("utf-16le")) {
-			cha = StandardCharsets.UTF_16LE;
-		}
-		try {
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(file.replaceAll("\\]", "").replaceAll("\\[", ""), false), cha));
-			out.write(text);
-			out.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	public void delete() throws IOException {
-		AccountData accountToCompare = new AccountData();
-		accountToCompare.set("userName", pathToMessageBody.split("/")[1]);
-		int index = FrameManager.accounts.indexOf(accountToCompare);
-		AccountData account = FrameManager.accounts.get(index);
-		MailFolder folderToCompare = new MailFolder(pathToMessageBody.split("/")[3]);
-		index = account.getFolders().indexOf(folderToCompare);
-		MailFolder folder = account.getFolders().get(index);
-		folder.getMessages().remove(this);
-		FrameManager.connections.get(pathToMessageBody.split("/")[1]).deleteMessage(pathToMessageBody.split("/")[3],
-				this);
-		FileUtils.deleteDirectory(new File(
-				pathToMessageBody.replaceAll("/messageBody\\d+.txt", "").replaceAll("\\]", "").replaceAll("\\[", "")));
-
-	}
-
-	public void setPathToMessageBody(String pathToMessageBody) {
-		this.pathToMessageBody = pathToMessageBody;
-	}
-
-	public String getMessageText() {
-		File file = new File(pathToMessageBody.replaceAll("\\]", "").replaceAll("\\[", ""));
-		FileInputStream fis;
-		StringBuffer text = new StringBuffer();
-		try {
-			fis = new FileInputStream(file);
-			BufferedReader in = new BufferedReader(new InputStreamReader(fis));
-			String line = in.readLine();
-			while (line != null) {
-				text.append(line + "\n");
-				line = in.readLine();
-			}
-			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return text.toString();
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public String getFrom() {
-		return from;
-	}
-
-	public String getTo() {
-		return to;
-	}
-
-	public String getSubject() {
-		return subject;
-	}
-
-	public String getPathToMessageBody() {
-		return pathToMessageBody;
-	}
-
-	public ArrayList<String> getHtmlFiles() {
-		return htmlFiles;
-	}
-
-	public ArrayList<String> getAttachments() {
-		return attachments;
-	}
-
-	public void setAttachments(ArrayList<String> attachments) {
-		this.attachments = attachments;
-	}
-
-	public void setHtmlFiles(ArrayList<String> htmlFiles) {
-		this.htmlFiles = htmlFiles;
-	}
-
 	@Override
 	public int compareTo(MessageContainer o) {
 		return o.getReceivedDate().compareTo(this.getReceivedDate());
@@ -270,15 +273,14 @@ public class MessageContainer implements Comparable<MessageContainer> {
 	@Override
 	public boolean equals(Object o) {
 		MessageContainer m = (MessageContainer) o;
-		return m.pathToMessageBody.equals(this.pathToMessageBody);
+		return m.path.equals(this.path);
 	}
 
 	@Override
 	public String toString() {
-		return "MessageContainer [path=" + path + ", from=" + from + ", to=" + to + ", subject=" + subject
-				+ ", recievedDate=" + recievedDate + ", pathToMessageBody=" + pathToMessageBody + ", htmlFiles="
-				+ htmlFiles + ", attachments=" + attachments + ", messageText=" + messageText + ", hasAttachment="
-				+ hasAttachment + ", seen=" + seen + "]";
+		return "MessageContainer {path='" + path + "', from='" + from + "', to='" + to + "', subject='" + subject
+				+ "', recievedDate='" + recievedDate + "', htmlFiles='" + htmlFiles + "', attachments='" + attachments
+				+ "', messageText='" + messageText + "', seen='" + seen + "'}";
 	}
 
 }

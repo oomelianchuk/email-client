@@ -1,11 +1,15 @@
 package data;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class AccountData {
+public class AccountData implements Serializable {
 	private String email;
 	private String userName;
 	private String userAuth;
@@ -170,7 +174,21 @@ public class AccountData {
 	}
 
 	public void addFolder(MailFolder folder) {
-		folders.add(folder);
+		if (folders.contains(folder)) {
+			int index = folders.indexOf(folder);
+			folders.get(index).addAllMessages(folder.getMessages());
+		} else {
+			folders.add(folder);
+		}
+	}
+
+	public MailFolder getFolderByName(String folderName) {
+		for (MailFolder folder : folders) {
+			if (folder.getName().equals(folderName)) {
+				return folder;
+			}
+		}
+		return null;
 	}
 
 	public String getEmail() {
@@ -206,17 +224,32 @@ public class AccountData {
 		this.folders = folders;
 	}
 
+	public void serialize() throws IOException {
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("src/accounts.out"));
+		out.writeObject(this);
+		out.close();
+	}
+
 	@Override
 	public String toString() {
-		return "AccountData [email=" + email + ", userName=" + userName + ", userAuth=" + userAuth + ", password="
-				+ password + ", popServer=" + popServer + ", imapServer=" + imapServer + ", smtpServer=" + smtpServer
-				+ ", popPort=" + popPort + ", imapPort=" + imapPort + ", smtpPort=" + smtpPort + ", savePass="
-				+ savePass + ", folders=" + folders + "]";
+		return "AccountData {email='" + email + "', userName='" + userName + "', userAuth='" + userAuth
+				+ "', password='" + password + "', popServer='" + popServer + "', sslPop='" + sslPop + "', tlsPop='"
+				+ tlsPop + "', imapServer='" + imapServer + "', sslImap='" + sslImap + "', tlsImap='" + tlsImap
+				+ "', smtpServer='" + smtpServer + "', sslSmtp='" + sslSmtp + "', tlsSmtp='" + tlsSmtp + "', popPort='"
+				+ popPort + "', imapPort='" + imapPort + "', smtpPort='" + smtpPort + "', folders='" + folders + "'}\n";
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		AccountData data = (AccountData) o;
 		return data.getUserName().equals(this.getUserName());
+	}
+	public boolean hasFolder(String folderName) {
+		for(MailFolder folder:folders) {
+			if(folder.getName().equals(folderName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

@@ -56,7 +56,7 @@ public class OpenedMessagePanel extends JPanel {
 		info = new InfoOpenedMessagePanel(forwarding);
 		if (forwarding) {
 			AccountData accountToCompare = new AccountData();
-			accountToCompare.set("userName", message.getPathToMessageBody().split("/")[1]);
+			accountToCompare.set("userName", message.getAccountName());
 			info.setSender(FrameManager.accounts.get(FrameManager.accounts.indexOf(accountToCompare)).getEmail());
 			info.setSubject("Fwd: " + message.getSubject());
 		} else {
@@ -164,7 +164,7 @@ public class OpenedMessagePanel extends JPanel {
 		attach.add(showAttachmentButton);
 		// only if message has attachment this panel should be displayed -> attached to
 		// main panel (attachAndHtml)
-		if (message.isHasAttachment()) {
+		if (!(message.getAttachments() == null || message.getAttachments().isEmpty())) {
 			attachAndHtml.add(attach, BorderLayout.WEST);
 		}
 
@@ -218,7 +218,7 @@ public class OpenedMessagePanel extends JPanel {
 					commentMessage.setSubject(info.getSubject());
 					new SwingWorker<Void, Void>() {
 						protected Void doInBackground() {
-							FrameManager.connections.get(message.getPathToMessageBody().split("/")[1]).forward(message,
+							FrameManager.connections.get(message.getAccountName()).forward(message,
 									commentMessage, messageText.getText());
 							// after message is send - info message "sent"
 							JOptionPane.showMessageDialog(FrameManager.mainFrame, "your message sent", "Message sent",
@@ -404,9 +404,10 @@ public class OpenedMessagePanel extends JPanel {
 			attachmentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 			String[] attachmentPathArray = attachmentPath.split("/");
 			String fileName = attachmentPathArray[attachmentPathArray.length - 1];
-			String userName = attachmentPathArray[1];
-			String folderName = attachmentPathArray[3];
+			String userName = message.getAccountName();
+			String folderName = message.getFolderName();
 
+			
 			JLabel attachment = new JLabel(fileName);
 			attachment.setBorder(new EmptyBorder(0, 0, 0, 10));
 			attachmentPanel.add(attachment);

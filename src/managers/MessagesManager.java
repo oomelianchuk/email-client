@@ -12,6 +12,7 @@ import javax.swing.SwingWorker;
 import org.apache.commons.io.FileUtils;
 
 import data.AccountData;
+import data.GlobalDataContainer;
 import data.MailFolder;
 import filewriters.XMLFileManager;
 import gui.FrameManager;
@@ -22,11 +23,11 @@ public class MessagesManager {
 
 	public void moveMessageToFolder(MessageContainer message, String folder) {
 		// get path to message folder
-		String messagePath = message.getPathToMessageBody().replaceAll("/messageBody\\d+.txt", "");
-		String[] oldMessageBodyPathSplited = message.getPathToMessageBody().split("/");
+		String messagePath = message.getPath().replaceAll("/messageBody\\d+.txt", "");
+		String[] oldMessageBodyPathSplited = message.getPath().split("/");
 		String messageBodyName = oldMessageBodyPathSplited[oldMessageBodyPathSplited.length - 1];
-		String userName = message.getPathToMessageBody().split("/")[1];
-		String oldFolder = message.getPathToMessageBody().split("/")[3];
+		String userName = message.getAccountName();
+		String oldFolder = message.getFolderName();
 		// call connection manages to move folder on mail server
 		try {
 			FrameManager.connections.get(userName).moveMessageToFolder(folder, message);
@@ -36,10 +37,8 @@ public class MessagesManager {
 			// FrameManager /
 			AccountData accountToCompare = new AccountData();
 			accountToCompare.set("userName", userName);
-			AccountData account = FrameManager.accounts.get(FrameManager.accounts.indexOf(accountToCompare));
-			account.getFolders().get(account.getFolders().indexOf(new MailFolder(oldFolder))).getMessages()
-					.remove(message);
-
+			GlobalDataContainer.getAccountByName(userName).getFolderByName(folder).getMessages()
+			.remove(message);
 			// change message path
 			String newMessagePath = messagePath.replaceAll("/" + oldFolder + "/", "/" + folder + "/");
 
@@ -53,17 +52,11 @@ public class MessagesManager {
 			}
 
 			// move all files from old hdd folder to new
-			for (File oldFiles : new File(messagePath.replaceAll("\\]", "").replaceAll("\\[", "")).listFiles()) {
+			for (File oldFiles : new File(message.getPath()).listFiles()) {
 				oldFiles.renameTo(new File(oldFiles.getAbsolutePath().replaceAll(
-						messagePath.replaceAll("\\]", "").replaceAll("\\[", "").split("/")[3],
+						message.getFolderName(),
 						folder.replaceAll("\\]", "").replaceAll("\\[", ""))));
 			}
-
-			// change path to body in message's short information file
-			new XMLFileManager(newMessagePath.replaceAll("\\]", "").replaceAll("\\[", "") + "/mainMessage.xml")
-					.changeMessagePathToBody(
-							newMessagePath.replaceAll("\\]", "").replaceAll("\\[", "") + messageBodyName);
-
 			// delete old hdd message folder
 			try {
 				FileUtils.deleteDirectory(new File(messagePath.replaceAll("\\]", "").replaceAll("\\[", "")));
@@ -74,7 +67,7 @@ public class MessagesManager {
 			}
 
 			// change message path for message
-			message.setPathToMessageBody(newMessagePath + messageBodyName);
+			message.setPath(newMessagePath + messageBodyName);
 
 		} catch (MessagingException e1) {
 			e1.printStackTrace();
@@ -91,11 +84,17 @@ public class MessagesManager {
 		new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() {
-				new XMLFileManager(message.getPathToMessageBody().replaceAll("/messageBody\\d+.txt", "")
-						.replaceAll("\\]", "").replaceAll("\\[", "") + "/mainMessage.xml").setMessageAsSeen();
-				ConnectionManager connectionManager = FrameManager.connections
-						.get((message.getPathToMessageBody().split("/")[1]));
-				connectionManager.setMessageAsSeen(message.getPathToMessageBody().split("/")[3], message);
+				message.setSeen(true);
+				try {
+					message.serialize();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+/*				new XMLFileManager(message.getPath().replaceAll("/messageBody\\d+.txt", "").replaceAll("\\]", "")
+						.replaceAll("\\[", "") + "/mainMessage.xml").setMessageAsSeen();*/
+				ConnectionManager connectionManager = FrameManager.connections.get((message.getAccountName()));
+				connectionManager.setMessageAsSeen(message.getFolderName(), message);
 				return null;
 			}
 		}.execute();

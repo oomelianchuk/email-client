@@ -35,6 +35,7 @@ public class ConnectionManager implements ConnectionCreator, MessageManager {
 
 	@Override
 	public Store createReadSession(String protokol, AccountData data) {
+		FrameManager.logger.info(data);
 		return connectionCreator.createReadSession(protokol, data);
 	}
 
@@ -92,17 +93,17 @@ public class ConnectionManager implements ConnectionCreator, MessageManager {
 
 	}
 
-	public ArrayList<MailFolder> getFolders(String protocol, AccountData data) {
+	public ArrayList<String> getFolderNames(String protocol, AccountData data) {
 		if (protocol.equals("imap")) {
-			return getFolders(imapSession, data);
+			return getFolderNames(imapSession, data);
 		} else {
-			return getFolders(popSession, data);
+			return getFolderNames(popSession, data);
 		}
 	}
 
 	@Override
-	public ArrayList<MailFolder> getFolders(Store session, AccountData data) {
-		return messageManager.getFolders(session, data);
+	public ArrayList<String> getFolderNames(Store session, AccountData data) {
+		return messageManager.getFolderNames(session, data);
 	}
 
 	public File downloadAttachment(String protocol, String path, String folderName, MessageContainer messageContainer,

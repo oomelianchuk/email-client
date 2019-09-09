@@ -25,6 +25,8 @@ import actionclasses.MailLoader;
 import backrgroundhelpers.ProgressBarInMainFrame;
 import backrgroundhelpers.ProgressBarInNewFrame;
 import data.AccountData;
+import data.GlobalDataContainer;
+import data.MailFolder;
 import filewriters.LoggerConfigurator;
 import filewriters.XMLFileManager;
 import gui.mainframe.MainFrame;
@@ -129,9 +131,15 @@ public class FrameManager {
 			popUP.dispose();
 			// receive folders
 			if (imapShould) {
-				data.setFolders(connectionManager.getFolders("imap", data));
+				ArrayList<MailFolder> folders = new ArrayList<MailFolder>();
+				connectionManager.getFolderNames("imap", data).forEach(folderName -> folders
+						.add(new MailFolder(data.getUserName(), folderName, new ArrayList<MessageContainer>())));
+				data.setFolders(folders);
 			} else if (popShould) {
-				data.setFolders(connectionManager.getFolders("pop", data));
+				ArrayList<MailFolder> folders = new ArrayList<MailFolder>();
+				connectionManager.getFolderNames("pop", data).forEach(folderName -> folders
+						.add(new MailFolder(data.getUserName(), folderName, new ArrayList<MessageContainer>())));
+				data.setFolders(folders);
 			}
 			logger.info("add account on view");
 			// add account tree node on main frame
@@ -219,8 +227,7 @@ public class FrameManager {
 		return pop & imap;
 	}
 
-	public static void main(String[] args) {
-		logger.info("programm start");
+	private static void configureTheame() {
 		// read theme settings and set selected theme
 		if (new XMLFileManager("src/accounts.xml").getLookAndFeel().equals("system")) {
 			try {
@@ -241,8 +248,9 @@ public class FrameManager {
 				logger.error("while setting cross-platform look and feel: " + e1.toString());
 			}
 		}
-		mainFrame = new MainFrame();
-		// load data, check connections and update post
+	}
+
+	public static void loadAccounts() {
 		if (!debug) {
 			logger.info("debug modus off");
 			ProgressBarInNewFrame progressTermitated = new ProgressBarInNewFrame(new Loader(mainFrame), true);
@@ -258,6 +266,14 @@ public class FrameManager {
 			logger.info("debug modus on");
 			new Loader(mainFrame).action(new JProgressBar(), new JLabel());
 		}
+
+	}
+
+	public static void main(String[] args) {
+		logger.info("programm start");
+		configureTheame();
+		mainFrame = new MainFrame();
+		loadAccounts();
 		logger.info("strat displaying main frame");
 		// show main frame
 		mainFrame.pack();
@@ -274,6 +290,7 @@ public class FrameManager {
 				logger.info("background thread started");
 			}
 		}
+		GlobalDataContainer.setAccounts(accounts);
 		// after main frame is closed
 		mainFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {

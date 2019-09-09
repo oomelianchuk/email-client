@@ -2,7 +2,7 @@ package actionclasses;
 
 import java.util.ArrayList;
 import java.util.Date;
-
+import javax.mail.Folder;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;

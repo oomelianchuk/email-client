@@ -18,6 +18,7 @@ import gui.AskPasswordFrame;
 import gui.FrameManager;
 import gui.mainframe.MainFrame;
 import protokol.ConnectionManager;
+import protokol.MessageContainer;
 
 /**
  * class to load all for program needed data and display progress in progress
@@ -182,22 +183,21 @@ public class Loader implements BackgroundAction {
 	private void updateFolders(AccountData data, ConnectionManager connectionManager, String protocol) {
 		FrameManager.logger.info("update folders");
 		// load folders from server
-		ArrayList<MailFolder> newFolders = connectionManager.getFolders(protocol, data);
+		ArrayList<String> newFolders = connectionManager.getFolderNames(protocol, data);
 		if (data.getFolders() == null) {
 			data.setFolders(new ArrayList<MailFolder>());
 		}
 
 		// place to store folders that are present on server and in user account
 		ArrayList<MailFolder> newDataFolder = new ArrayList<MailFolder>();
-
 		// for each folder in account check if it is present on server
 		for (MailFolder folder : data.getFolders()) {
 
 			// if there are any folder in account, that are absent on server
-			if (!newFolders.contains(folder)) {
+			if (!newFolders.contains(folder.getName())) {
 				FrameManager.logger.info(folder.getName() + " doesn't exist and should be deleted");
 				this.label.setText(folder.getName() + " doesn't exist and should be deleted");
-				String dir = "src/" + data.getUserName() + "/folders/"
+				String dir = "src/" + data.getUserName()
 						+ folder.getName().replaceAll("[", "").replaceAll("]", "");
 				// delete this folder with all mail
 				try {
@@ -221,18 +221,16 @@ public class Loader implements BackgroundAction {
 		data.setFolders(newDataFolder);
 
 		// for each folder from server check if it is present in account
-		for (MailFolder folder : newFolders) {
+		for (String folder : newFolders) {
 
 			// if folder is absent in account, add it
-			if (!data.getFolders().contains(folder)) {
-				FrameManager.logger.info(folder.getName() + "  was apsent and should be created");
-				data.addFolder(folder);
-				this.label.setText(folder.getName() + " was apsent and should be created");
-
+			if (!data.hasFolder(folder)) {
+				FrameManager.logger.info(folder + "  was apsent and should be created");
+				this.label.setText(folder + " was apsent and should be created");
 				// and load all messages for this folder
-				folder.getMessages()
-						.addAll(connectionManager.downloadMail(new JProgressBar(), 0, protocol, data.getUserName(),
-								folder.getName(), folder.getName().replaceAll("\\[", "").replaceAll("\\]", "")));
+				ArrayList<MessageContainer> messages = connectionManager.downloadMail(new JProgressBar(), 0, protocol,
+						data.getUserName(), folder, folder.replaceAll("\\[", "").replaceAll("\\]", ""));
+				data.addFolder(new MailFolder(data.getUserName(), folder, messages));
 			}
 		}
 	}

@@ -56,16 +56,16 @@ public class MessageManagerImpl implements MessageManager {
 	public void moveMessageToFolder(Store session, String newFolderName, MessageContainer messageContainer)
 			throws MessagingException {
 		// open current messages' folder
-		Folder folder = session.getDefaultFolder().getFolder(messageContainer.getPathToMessageBody().split("/")[3]);
+		Folder folder = session.getDefaultFolder().getFolder(messageContainer.getFolderName());
 		FrameManager.logger.info("moving message to folder " + folder);
-		openFolder(folder, Folder.READ_WRITE, messageContainer.getPathToMessageBody().split("/")[1]);
+		openFolder(folder, Folder.READ_WRITE, messageContainer.getAccountName());
 
 		// search for specified message
 		Message[] ourMessage = new MessageSearcher().findMessage(folder, messageContainer);
 
 		// open folder to move message in
 		Folder newFolder = session.getDefaultFolder().getFolder(newFolderName);
-		openFolder(newFolder, Folder.READ_WRITE, messageContainer.getPathToMessageBody().split("/")[1]);
+		openFolder(newFolder, Folder.READ_WRITE, messageContainer.getAccountName());
 		FrameManager.logger.info("copy messages from " + folder + " to " + newFolder);
 
 		// copy message
@@ -92,7 +92,7 @@ public class MessageManagerImpl implements MessageManager {
 	 * @return list of folders
 	 */
 	@Override
-	public ArrayList<MailFolder> getFolders(Store session, AccountData data) {
+	public ArrayList<String> getFolderNames(Store session, AccountData data) {
 		// receiving folders
 		FrameManager.logger.info("receive folders");
 		Folder[] folders = new Folder[0];
@@ -101,14 +101,14 @@ public class MessageManagerImpl implements MessageManager {
 		} catch (MessagingException e) {
 			FrameManager.logger.error("while receiveing folders : " + e.toString());
 		}
-		ArrayList<MailFolder> folderNames = new ArrayList<MailFolder>();
+		ArrayList<String> folderNames = new ArrayList<String>();
 
 		// convert folders to in app common format
 		for (Folder folder : folders) {
 			// not accessible folder
 			if (!folder.getFullName().equals("[Gmail]")) {
 				FrameManager.logger.info("folder " + folder.getFullName() + " received");
-				folderNames.add(new MailFolder(folder.getFullName()));
+				folderNames.add(folder.getName());
 			}
 		}
 		FrameManager.logger.info("all folders received");
@@ -133,7 +133,7 @@ public class MessageManagerImpl implements MessageManager {
 		FrameManager.logger.info("starting attachment download to " + path);
 		try {
 			Folder folder = session.getDefaultFolder().getFolder(folderName);
-			openFolder(folder, Folder.READ_ONLY, messageContainer.getPathToMessageBody().split("/")[1]);
+			openFolder(folder, Folder.READ_ONLY, messageContainer.getAccountName());
 			Message[] ourMessage = new MessageSearcher().findMessage(folder, messageContainer);
 			File result = new FileManager(path).downloadAttachment(ourMessage[0], attachmentName);
 			folder.close();
@@ -158,7 +158,7 @@ public class MessageManagerImpl implements MessageManager {
 		FrameManager.logger.info("delete " + messageContainer + " from folder " + folderName + " on server");
 		try {
 			Folder folder = session.getDefaultFolder().getFolder(folderName);
-			openFolder(folder, Folder.READ_WRITE, messageContainer.getPathToMessageBody().split("/")[1]);
+			openFolder(folder, Folder.READ_WRITE, messageContainer.getAccountName());
 			Message[] ourMessage = new MessageSearcher().findMessage(folder, messageContainer);
 			ourMessage[0].setFlag(Flags.Flag.DELETED, true);
 			folder.close();
@@ -184,7 +184,7 @@ public class MessageManagerImpl implements MessageManager {
 			while (onUpdate) {
 			}
 			folder = session.getDefaultFolder().getFolder(folderName);
-			openFolder(folder, Folder.READ_WRITE, messageContainer.getPathToMessageBody().split("/")[1]);
+			openFolder(folder, Folder.READ_WRITE, messageContainer.getAccountName());
 			Message[] ourMessage = new MessageSearcher().findMessage(folder, messageContainer);
 			ourMessage[0].setFlag(Flags.Flag.SEEN, true);
 			folder.close();
@@ -210,7 +210,7 @@ public class MessageManagerImpl implements MessageManager {
 		try {
 			FrameManager.logger.info("finding the message on server");
 			Folder folder = null;
-			String[] splitedMessageBodyPath = messageContainer.getPathToMessageBody().split("/");
+			String[] splitedMessageBodyPath = messageContainer.getPath().split("/");
 
 			String folderName = splitedMessageBodyPath[splitedMessageBodyPath.length - 3];
 			if (splitedMessageBodyPath.length > 6) {
@@ -256,7 +256,7 @@ public class MessageManagerImpl implements MessageManager {
 					}
 				}
 			}
-			if (messageContainer.isHasAttachment()) {
+			if (messageContainer.getAttachments() == null || messageContainer.getAttachments().isEmpty()) {
 				FrameManager.logger.info("adding attachments from forwarding message");
 				for (int i = 0; i < ((Multipart) ourMessage.getContent()).getCount(); i++) {
 					BodyPart bodyPart = ((Multipart) ourMessage.getContent()).getBodyPart(i);
@@ -354,7 +354,7 @@ public class MessageManagerImpl implements MessageManager {
 		if (logger == null) {
 			logger = FrameManager.logger;
 		}
-		logger.info("download messages in folder " + folderName + " after date " + date.toString());
+		//logger.info("download messages in folder " + folderName + " after date " + date.toString());
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		calendar.add(Calendar.DATE, -1);
@@ -363,21 +363,21 @@ public class MessageManagerImpl implements MessageManager {
 		Message[] messages = new Message[0];
 		Folder folder;
 		try {
-			logger.info("search for messages after " + yesterday);
+			//logger.info("search for messages after " + yesterday);
 			folder = session.getDefaultFolder().getFolder(folderName);
 
 			openFolder(folder, Folder.READ_ONLY, userName, logger);
 			messageInfos = new MessageSearcher().findMessagesAfterDate(date, folder, userName, logger);
 			messageInfos.forEach(message -> downloadMessage(message, userName, folderName));
 			if (!messageInfos.isEmpty()) {
-				logger.info("new messages were loaded in folder " + folderName);
+				//logger.info("new messages were loaded in folder " + folderName);
 			} else {
-				logger.info("no new messages found in folder" + folderName);
+				//logger.info("no new messages found in folder" + folderName);
 
 			}
-			logger.info("closing " + folder.getFullName() + " folder");
+			//logger.info("closing " + folder.getFullName() + " folder");
 			folder.close();
-			logger.info("folder " + folder.getFullName() + " closed");
+			//logger.info("folder " + folder.getFullName() + " closed");
 		} catch (MessagingException e) {
 			logger.error("loading messages after date : " + e.toString());
 		}
@@ -393,7 +393,6 @@ public class MessageManagerImpl implements MessageManager {
 	 * @param path       path where to load this folder
 	 * @return
 	 */
-//TODO: try to separate visualization and logic
 	@Override
 	public ArrayList<MessageContainer> downloadAllMail(Store session, JProgressBar progressBar, int folderValue,
 			String protocol, String userName, String folderName) {
@@ -406,7 +405,9 @@ public class MessageManagerImpl implements MessageManager {
 			double messageValue = ((Integer) folderValue).doubleValue() / folder.getMessages().length;
 			double summ = 0.0;
 			for (Message message : folder.getMessages()) {
-				messages.add(downloadMessage(new MessageContainer(message), userName, folderName));
+//				messages.add(
+//						downloadMessage(new MessageContainer(message, userName, folderName), userName, folderName));
+				messages.add(new MessageContainer(message, userName, folderName));
 				summ += messageValue;
 				if (summ >= 1.0) {
 					progressBar.setValue(progressBar.getValue() + ((Double) summ).intValue());
@@ -415,7 +416,7 @@ public class MessageManagerImpl implements MessageManager {
 			}
 			folder.close();
 			return messages;
-		} catch (MessagingException e) {
+		} catch (MessagingException | IOException e) {
 			FrameManager.logger.error("loading mail : " + e.toString());
 		}
 		return null;
@@ -434,7 +435,7 @@ public class MessageManagerImpl implements MessageManager {
 					}
 					logger.info("update finished");
 				}
-				logger.info("open folder " + folder.getFullName() + " for user " + userName);
+				//logger.info("open folder " + folder.getFullName() + " for user " + userName);
 				folder.open(premission);
 			} catch (MessagingException e) {
 				try {
@@ -517,12 +518,12 @@ public class MessageManagerImpl implements MessageManager {
 			}
 
 			// create folder to save message
-			String filePath = "src/" + userName + "/folders/" + folderName + "/" + messageXMLfolderName;
+			String filePath = "src/" + userName +"/" + messageXMLfolderName;
 			FrameManager.logger.info("path to message " + filePath);
 			FrameManager.logger.info("create directory");
 			Files.createDirectories(Paths.get(filePath));
 			FrameManager.logger.info("directory created");
-			FrameManager.logger.info("creating xml file");
+/*			FrameManager.logger.info("creating xml file");
 			// create xml file with short information about message
 			File newFile = new File(filePath + "/mainMessage.xml");
 
@@ -534,12 +535,13 @@ public class MessageManagerImpl implements MessageManager {
 				out.close();
 			}
 
-			XMLFileManager xmlWriter = new XMLFileManager(filePath + "/mainMessage.xml", "message");
+			XMLFileManager xmlWriter = new XMLFileManager(filePath + "/mainMessage.xml", "message");*/
 			// take message apart (single out message text and html view ,determine if
 			// message has attachment and if yes than saves it's file name
-			message.setPath("src/" + userName + "/folders/" + folderName + "/" + messageXMLfolderName);
+			message.setPath(filePath);
+			System.out.println(message);
 			// write short information in file
-			xmlWriter.createMessageFile(message);
+			message.serialize();
 			return message;
 		} catch (IOException e) {
 			FrameManager.logger.error("downloading message " + e.toString());

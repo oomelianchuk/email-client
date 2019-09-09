@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -14,6 +13,7 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.swing.JOptionPane;
 
+import data.MailFolder;
 import gui.FrameManager;
 import protokol.MessageContainer;
 
@@ -29,18 +29,16 @@ public class FileManager {
 	public ArrayList<MessageContainer> getMessages(String userName) {
 		ArrayList<MessageContainer> messages = new ArrayList<MessageContainer>();
 		FrameManager.logger.info("get messages from folder " + mainDir + " for user " + userName);
-		if (mainDir.exists()) {
-			File[] messageFolders = mainDir.listFiles();
-			for (File folder : messageFolders) {
-				if (new File(folder.getAbsolutePath() + "/mainMessage.xml").exists()) {
-					XMLFileManager xml = new XMLFileManager((mainDirRelativPath + "/"
-							+ folder.getName().replaceAll("\\]", "").replaceAll("\\[", "") + "/mainMessage.xml"));
-					MessageContainer m = xml.parseMessage();
-					messages.add(m);
-				}
-			}
-			Collections.sort(messages);
-		}
+		MailFolder folder = new MailFolder(mainDir.getAbsolutePath());
+		messages = folder.getMessages();
+		/*
+		 * if (mainDir.exists()) { File[] messageFolders = mainDir.listFiles(); for
+		 * (File folder : messageFolders) { if (new File(folder.getAbsolutePath() +
+		 * "/mainMessage.xml").exists()) { XMLFileManager xml = new
+		 * XMLFileManager((mainDirRelativPath + "/" + folder.getName().replaceAll("\\]",
+		 * "").replaceAll("\\[", "") + "/mainMessage.xml")); MessageContainer m =
+		 * xml.parseMessage(); messages.add(m); } } Collections.sort(messages); }
+		 */
 		return messages;
 	}
 

@@ -18,7 +18,7 @@ public interface MessageManager {
 	void moveMessageToFolder(Store session, String newFolderName, MessageContainer messageContainer)
 			throws MessagingException;
 
-	ArrayList<MailFolder> getFolders(Store session, AccountData data);
+	ArrayList<String> getFolderNames(Store session, AccountData data);
 
 	File downloadAttachment(Store session, String path, String folderName, MessageContainer messageContainer,
 			String attachmentName);

@@ -15,6 +15,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
 import data.AccountData;
+import data.GlobalDataContainer;
+import data.MailFolder;
 import filewriters.XMLFileManager;
 import gui.FrameManager;
 import protokol.ConnectionManager;
@@ -75,11 +77,15 @@ class TreeClickListener extends MouseAdapter {
 			// if selected node is folder node
 			if (tree.getPathForLocation(e.getX(), e.getY()).getPath().length > 2) {
 				DefaultMutableTreeNode folderNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-
 				TreeNode[] path = folderNode.getPath();
 				// if click was not on "compose" menu
 				if (!path[path.length - 1].toString().equals("Compose")) {
-					messagesPanel = new MessagesPanel(path[1].toString(), path[2].toString());
+					String userName= path[1].toString();
+					String folderName=path[2].toString();
+					MailFolder folder =new MailFolder("src/"+userName+"/"+ folderName);
+					GlobalDataContainer.getAccountByName(userName).addFolder(folder);
+					System.out.println(folder.getMessages().size());
+					messagesPanel = new MessagesPanel(folder);
 					messagesPanel.loadMessages();
 					if (FrameManager.mainFrame.getRightPart().getClass().equals(OpenedMessagePanel.class)) {
 						JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);

@@ -36,7 +36,7 @@ public class ConnectionCreatorImpl implements ConnectionCreator {
 		String password = data.get("password");
 		String ssl = data.get("ssl" + protocolKeyWord.substring(0, 1).toUpperCase() + protocolKeyWord.substring(1));
 		String tls = data.get("tls" + protocolKeyWord.substring(0, 1).toUpperCase() + protocolKeyWord.substring(1));
-
+		FrameManager.logger.info(protocolKeyWord+" "+protocolKeyWord.substring(0, 1).toUpperCase() + protocolKeyWord.substring(1));
 		// configure properties
 		Properties props = new Properties();
 		props.setProperty("mail." + protokol + ".ssl.enable", ssl);
@@ -50,11 +50,11 @@ public class ConnectionCreatorImpl implements ConnectionCreator {
 		Store store;
 		try {
 			store = session.getStore(protokol);
-			FrameManager.logger.info("staring " + protokol + " connection for " + data.getUserName());
+			FrameManager.logger.info("staring " + protokol + " connection for " + data.getUserName()+" port "+port +" ssl "+ssl);
 			store.connect(host, userAuth, password);
 			FrameManager.logger.info(protokol + " connected for " + data.getUserName());
 		} catch (Exception e) {
-			FrameManager.logger.error(protokol + " connection failed for " + data.getUserName() + " : " + e.toString());
+			FrameManager.logger.error(protokol + " connection failed for " + data.getUserName() + " : " + e.getMessage());
 			return null;
 		}
 		return store;

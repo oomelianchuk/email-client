@@ -1,9 +1,12 @@
 package filewriters;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
+import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,7 +38,6 @@ import org.xml.sax.SAXException;
 import data.AccountData;
 import data.MailFolder;
 import gui.FrameManager;
-import protokol.MessageContainer;
 
 /**
  * This class helps to interact with xml files e.g. accounts.xml or
@@ -54,89 +56,32 @@ public class XMLFileManager {
 	public XMLFileManager(String path) {
 		try {
 			this.path = path;
-			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.path);
+			File newFile = new File(path);
+			boolean created = newFile.createNewFile();
+			FrameManager.logger.info("xml file created " + created);
+			if (!created) {
+				document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.path);
+			} else {
+				createDocument(path);
+			}
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
 
-//work with message files
-	/**
-	 * to create instance of this class it's needed to give it path to file, with
-	 * which it will interact (for already created xml files without root element)
-	 * 
-	 * @param path            path to file
-	 * @param rootElementName root element tag e.g Message
-	 */
-	public XMLFileManager(String path, String rootElementName) {
+	private void createDocument(String path) {
 		try {
-			this.path = path;
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-
-			document = docBuilder.newDocument();
-			Element rootElement = document.createElement(rootElementName);
-			document.appendChild(rootElement);
-		} catch (ParserConfigurationException e) {
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path, false)));
+			out.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
+			out.write("<Properties>\n");
+			out.write("<Skin>cross-platform</Skin>\n");
+			out.write("<Accounts>cross-platform</Accounts>\n");
+			out.write("</Properties>\n");
+			out.close();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
 
-	/**
-	 * gets short information about message from mainMessage.xml
-	 * 
-	 * @return container for short information about message
-	 */
-	public MessageContainer parseMessage() {
-		FrameManager.logger.info("read file " + path);
-		// read data
-		String from = document.getElementsByTagName("from").item(0).getTextContent();
-		String to = document.getElementsByTagName("to").item(0).getTextContent();
-		String subject = document.getElementsByTagName("subject").item(0).getTextContent();
-		Date recievedDate = new Date();
-		try {
-			FrameManager.logger.info("try to read recieved date");
-			recievedDate = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
-					.parse(document.getElementsByTagName("recievedDate").item(0).getTextContent());
-		} catch (DOMException | ParseException e) {
-			FrameManager.logger.warn("failed to read recieved date");
-		}
-		boolean attachment = Boolean.valueOf(document.getElementsByTagName("hasAttachment").item(0).getTextContent());
-		boolean seen = Boolean.valueOf(document.getElementsByTagName("seen").item(0).getTextContent());
-		String path = "src/" + this.path.split("/")[1] + "/folders/"
-				+ document.getElementsByTagName("pathToText").item(0).getTextContent();
-		// fill container with info about message
-		MessageContainer m = new MessageContainer(from, to, subject, recievedDate, seen, path);
-		m.setHasAttachment(attachment);
-		if (document.getElementsByTagName("html").getLength() > 0) {
-			FrameManager.logger.info("adding paths to html files");
-			NodeList htmlFiles = document.getElementsByTagName("html").item(0).getChildNodes();
-			ArrayList<String> htmlFilesArray = new ArrayList<String>();
-			for (int i = 0; i < htmlFiles.getLength(); i++) {
-				htmlFilesArray.add("src/" + this.path.split("/")[1] + "/folders/" + htmlFiles.item(i).getTextContent());
-			}
-			m.setHtmlFiles(htmlFilesArray);
-		}
-		if (document.getElementsByTagName("attachments").getLength() > 0) {
-			FrameManager.logger.info("adding paths to attachments");
-			NodeList attachments = document.getElementsByTagName("attachments").item(0).getChildNodes();
-			ArrayList<String> attachmentsArray = new ArrayList<String>();
-			for (int i = 0; i < attachments.getLength(); i++) {
-				attachmentsArray
-						.add("src/" + this.path.split("/")[1] + "/folders/" + attachments.item(i).getTextContent());
-			}
-			m.setAttachments(attachmentsArray);
-		}
-		return m;
-	}
-
-	/**
-	 * set message as seen in mainMessage.xml
-	 */
-	public void setMessageAsSeen() {
-		FrameManager.logger.info("set message in file " + path + " as seen");
-		document.getElementsByTagName("seen").item(0).setTextContent("true");
-		writeDocument(document);
 	}
 
 	/**
@@ -159,89 +104,6 @@ public class XMLFileManager {
 			return null;
 		}
 	}
-
-	/**
-	 * fill mainMessage.xml with short information about message
-	 * 
-	 * @param messageContainer short information about message
-	 */
-	public void createMessageFile(MessageContainer messageContainer) {
-		FrameManager.logger.info("serialize message " + messageContainer + " in path " + path);
-		Node root = document.getDocumentElement();
-		Element from = document.createElement("from");
-		from.setTextContent(messageContainer.getFrom());
-		root.appendChild(from);
-
-		Element to = document.createElement("to");
-		to.setTextContent(messageContainer.getTo());
-		root.appendChild(to);
-
-		Element subject = document.createElement("subject");
-		subject.setTextContent(messageContainer.getSubject());
-		root.appendChild(subject);
-
-		Element recievedDate = document.createElement("recievedDate");
-		DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-		recievedDate.setTextContent(dateFormat
-				.format(messageContainer.getReceivedDate() == null ? new Date() : messageContainer.getReceivedDate()));
-		root.appendChild(recievedDate);
-
-		Element pathToText = document.createElement("pathToText");
-		String[] splitedPath = messageContainer.getPathToMessageBody().split("/");
-		String writedPath = messageContainer.getPathToMessageBody()
-				.replaceAll(splitedPath[0] + "/" + splitedPath[1] + "/" + splitedPath[2] + "/", "");
-		pathToText.setTextContent(writedPath);
-		root.appendChild(pathToText);
-
-		Element seen = document.createElement("seen");
-		seen.setTextContent(Boolean.toString(messageContainer.isSeen()));
-		root.appendChild(seen);
-
-		Element hasAttachment = document.createElement("hasAttachment");
-		hasAttachment.setTextContent(Boolean.toString(messageContainer.isHasAttachment()));
-		root.appendChild(hasAttachment);
-
-		Element html = document.createElement("html");
-		if (!messageContainer.getHtmlFiles().isEmpty()) {
-			for (String fileHtml : messageContainer.getHtmlFiles()) {
-				String[] splitedHtmlPath = fileHtml.split("/");
-				String writedHtmlPath = fileHtml
-						.replaceAll(splitedHtmlPath[0] + "/" + splitedHtmlPath[1] + "/" + splitedHtmlPath[2] + "/", "");
-				Element htmlFile = document.createElement("htmlFile");
-				htmlFile.setTextContent(writedHtmlPath);
-				html.appendChild(htmlFile);
-			}
-			root.appendChild(html);
-		}
-
-		Element attachments = document.createElement("attachments");
-		if (!messageContainer.getAttachments().isEmpty()) {
-			for (String attachmentFile : messageContainer.getAttachments()) {
-				String[] splitedAttachmentPath = attachmentFile.split("/");
-				String writedAttachmentPath = attachmentFile.replaceAll(
-						splitedPath[0] + "/" + splitedAttachmentPath[1] + "/" + splitedAttachmentPath[2] + "/", "");
-				Element attachment = document.createElement("attachment");
-				attachment.setTextContent(writedAttachmentPath);
-				attachments.appendChild(attachment);
-			}
-			root.appendChild(attachments);
-		}
-
-		writeDocument(document);
-	}
-
-	/**
-	 * change path to message text (called on message removing)
-	 * 
-	 * @param newPath
-	 */
-	public void changeMessagePathToBody(String newPath) {
-		FrameManager.logger.info("change path to message body to " + newPath);
-		document.getElementsByTagName("pathToText").item(0).setTextContent(newPath);
-		writeDocument(document);
-	}
-
-//work with accounts file
 	/**
 	 * get name of preselected look and feel (yet only system or cross platform)
 	 * 
@@ -401,7 +263,7 @@ public class XMLFileManager {
 					for (int j = 0; j < subNodes.getLength(); j++) {
 						Node subNode = subNodes.item(j);
 						if (subNode.getNodeName().equals("folder")) {
-							accountData.addFolder(new MailFolder(subNode.getTextContent()));
+							accountData.addFolder(new MailFolder("src/" + userName + "/" + subNode.getTextContent()));
 						}
 						if (subNode.getNodeType() != Node.TEXT_NODE) {
 							accountData.set(subNode.getNodeName(), subNode.getTextContent());

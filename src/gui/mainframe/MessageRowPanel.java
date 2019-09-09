@@ -22,6 +22,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import data.AccountData;
+import data.GlobalDataContainer;
 import gui.FrameManager;
 import managers.MessagesManager;
 import protokol.MessageContainer;
@@ -123,8 +124,8 @@ public class MessageRowPanel extends JPanel {
 
 		// get user email
 		AccountData accountToCompare = new AccountData();
-		accountToCompare.set("userName", message.getPathToMessageBody().split("/")[1]);
-		String userEmail = FrameManager.accounts.get(FrameManager.accounts.indexOf(accountToCompare)).getEmail();
+		accountToCompare.set("userName", message.getAccountName());
+		String userEmail =GlobalDataContainer.getAccountByName(message.getAccountName()).getEmail();
 
 		// get all email on which the original message was sent and set them as
 		// recipients
@@ -132,8 +133,8 @@ public class MessageRowPanel extends JPanel {
 				.replaceAll("(\\w+\\s+)*\\<", "").replaceAll("\\>", "");
 
 		// create reply message display object
-		OpenedMessagePanel oPanel = new OpenedMessagePanel(message.getPathToMessageBody().split("/")[1], userEmail,
-				recipient, message.getSubject(), message.getMessageText());
+		OpenedMessagePanel oPanel = new OpenedMessagePanel(message.getAccountName(), userEmail, recipient,
+				message.getSubject(), message.getMessageText());
 
 		// display reply message under message list
 		if (FrameManager.mainFrame.getRightPart().getClass().equals(MessagesPanel.class)) {
