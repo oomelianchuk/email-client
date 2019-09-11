@@ -5,15 +5,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
@@ -263,7 +260,7 @@ public class XMLFileManager {
 					for (int j = 0; j < subNodes.getLength(); j++) {
 						Node subNode = subNodes.item(j);
 						if (subNode.getNodeName().equals("folder")) {
-							accountData.addFolder(new MailFolder("src/" + userName + "/" + subNode.getTextContent()));
+							accountData.addFolderName(subNode.getTextContent());
 						}
 						if (subNode.getNodeType() != Node.TEXT_NODE) {
 							accountData.set(subNode.getNodeName(), subNode.getTextContent());

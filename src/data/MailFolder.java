@@ -3,10 +3,8 @@ package data;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,7 +22,11 @@ public class MailFolder implements Serializable {
 	}
 
 	public void addAllMessages(ArrayList<MessageContainer> messages) {
-		this.messages.addAll(messages);
+		messages.forEach(message -> {
+			if (!this.messages.contains(message)) {
+				this.messages.add(message);
+			}
+		});
 	}
 
 	@Override
@@ -49,20 +51,18 @@ public class MailFolder implements Serializable {
 	}
 
 	public MailFolder(String pathToFolder) {
-		System.out.println("path " + pathToFolder);
 		this.pathToFolder = pathToFolder;
 		this.messages = new ArrayList<MessageContainer>();
 		File folder = new File(pathToFolder);
-		System.out.println(pathToFolder);
 		if (folder.listFiles() != null) {
 			for (File messageFolder : folder.listFiles()) {
 				try {
-					if(messageFolder.exists()) {
-					ObjectInputStream in = new ObjectInputStream(
-							new FileInputStream(messageFolder.getAbsoluteFile() + "/message.out"));
-					MessageContainer messageInfo = (MessageContainer) in.readObject();
-					this.messages.add(messageInfo);
-					in.close();
+					if (messageFolder.exists()) {
+						ObjectInputStream in = new ObjectInputStream(
+								new FileInputStream(messageFolder.getAbsoluteFile() + "/message.out"));
+						MessageContainer messageInfo = (MessageContainer) in.readObject();
+						this.messages.add(messageInfo);
+						in.close();
 					}
 				} catch (IOException | ClassNotFoundException e) {
 					e.printStackTrace();
@@ -70,13 +70,12 @@ public class MailFolder implements Serializable {
 			}
 		}
 		numberOfMessagesOnStart = messages.size();
-		System.out.println(messages.size());
 	}
 
 	public MailFolder(String userName, String folderName, ArrayList<MessageContainer> messages) {
 		this.pathToFolder = "src/" + userName + "/" + folderName;
 		this.messages = messages;
-		numberOfMessagesOnStart=messages.size();
+		numberOfMessagesOnStart = messages.size();
 	}
 
 	public void serialize() throws FileNotFoundException, IOException {

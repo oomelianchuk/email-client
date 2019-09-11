@@ -1,6 +1,5 @@
 package protokol;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -12,7 +11,6 @@ import javax.swing.JProgressBar;
 import org.apache.logging.log4j.Logger;
 
 import data.AccountData;
-import data.MailFolder;
 import gui.FrameManager;
 
 /**
@@ -106,19 +104,19 @@ public class ConnectionManager implements ConnectionCreator, MessageManager {
 		return messageManager.getFolderNames(session, data);
 	}
 
-	public File downloadAttachment(String protocol, String path, String folderName, MessageContainer messageContainer,
+	public void downloadAttachment(String protocol, String path, String folderName, MessageContainer messageContainer,
 			String attachmentName) {
 		if (protocol.equals("imap")) {
-			return messageManager.downloadAttachment(imapSession, path, folderName, messageContainer, attachmentName);
+			messageManager.downloadAttachment(imapSession, path, folderName, messageContainer, attachmentName);
 		} else {
-			return messageManager.downloadAttachment(popSession, path, folderName, messageContainer, attachmentName);
+			messageManager.downloadAttachment(popSession, path, folderName, messageContainer, attachmentName);
 		}
 	}
 
 	@Override
-	public File downloadAttachment(Store session, String path, String folderName, MessageContainer messageContainer,
+	public void downloadAttachment(Store session, String path, String folderName, MessageContainer messageContainer,
 			String attachmentName) {
-		return messageManager.downloadAttachment(session, path, folderName, messageContainer, attachmentName);
+		 messageManager.downloadAttachment(session, path, folderName, messageContainer, attachmentName);
 	}
 
 	public void deleteMessage(String folderName, MessageContainer messageContainer) {

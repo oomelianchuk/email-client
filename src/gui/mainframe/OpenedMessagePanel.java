@@ -30,6 +30,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import data.AccountData;
+import data.GlobalDataContainer;
 import gui.FrameManager;
 import protokol.MessageContainer;
 
@@ -55,9 +56,7 @@ public class OpenedMessagePanel extends JPanel {
 		// configure info panel
 		info = new InfoOpenedMessagePanel(forwarding);
 		if (forwarding) {
-			AccountData accountToCompare = new AccountData();
-			accountToCompare.set("userName", message.getAccountName());
-			info.setSender(FrameManager.accounts.get(FrameManager.accounts.indexOf(accountToCompare)).getEmail());
+			info.setSender(GlobalDataContainer.getAccountByName(message.getAccountName()).getEmail());
 			info.setSubject("Fwd: " + message.getSubject());
 		} else {
 			info.setSender(message.getFrom());
@@ -218,7 +217,7 @@ public class OpenedMessagePanel extends JPanel {
 					commentMessage.setSubject(info.getSubject());
 					new SwingWorker<Void, Void>() {
 						protected Void doInBackground() {
-							FrameManager.connections.get(message.getAccountName()).forward(message,
+							GlobalDataContainer.getConnectionByAccount(message.getAccountName()).forward(message,
 									commentMessage, messageText.getText());
 							// after message is send - info message "sent"
 							JOptionPane.showMessageDialog(FrameManager.mainFrame, "your message sent", "Message sent",
@@ -293,7 +292,7 @@ public class OpenedMessagePanel extends JPanel {
 					message.setFrom(info.getSender().trim());
 					message.setTo(info.getTo().trim());
 					message.setSubject(info.getSubject());
-					FrameManager.connections.get(userName).send(message, messageText.getText());
+					GlobalDataContainer.getConnectionByAccount(userName).send(message, messageText.getText());
 					JOptionPane.showMessageDialog(FrameManager.mainFrame, "your message sent", "Message sent",
 							JOptionPane.PLAIN_MESSAGE);
 					OpenedMessagePanel.this.setVisible(false);
@@ -425,7 +424,7 @@ public class OpenedMessagePanel extends JPanel {
 						new SwingWorker<Void, Void>() {
 							@Override
 							protected Void doInBackground() {
-								FrameManager.connections.get(userName).downloadAttachment("imap",
+								GlobalDataContainer.getConnectionByAccount(userName).downloadAttachment("imap",
 										yourFolder.getAbsolutePath(), folderName, message, fileName);
 								return null;
 							}

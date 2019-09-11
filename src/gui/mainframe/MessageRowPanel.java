@@ -13,18 +13,20 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import javax.mail.MessagingException;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import data.AccountData;
 import data.GlobalDataContainer;
 import gui.FrameManager;
-import managers.MessagesManager;
+import protokol.ConnectionManager;
 import protokol.MessageContainer;
 
 /**
@@ -96,8 +98,32 @@ public class MessageRowPanel extends JPanel {
 	 * @param folder -- name of folder to move message to
 	 */
 	public void moveToFolder(String folder) {
-		new MessagesManager().moveMessageToFolder(message, folder);
-		// hide this message
+		Thread hdd=new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				message.moveToFolder(folder);
+			}
+		});
+		Thread server = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					GlobalDataContainer.getConnectionByAccount(message.getAccountName()).moveMessageToFolder(folder, message);
+				} catch (MessagingException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		hdd.start();
+		server.start();
+		try {
+			hdd.join();
+			server.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		this.setVisible(false);
 	}
 
@@ -181,8 +207,23 @@ public class MessageRowPanel extends JPanel {
 			repaint();
 
 			// /change information on message object
-			message.setSeen(true);
-			new MessagesManager().setAsSeen(message);
+			// set message on hdd and on mail server as seen
+			// setting message as seen on mail server takes relative much time, so it will
+			// be done in swing worker not't to make program view hang
+			new SwingWorker<Void, Void>() {
+				@Override
+				protected Void doInBackground() {
+					message.setSeen(true);
+					try {
+						message.serialize();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					ConnectionManager connectionManager =GlobalDataContainer.getConnectionByAccount(message.getAccountName());
+					connectionManager.setMessageAsSeen(message.getFolderName(), message);
+					return null;
+				}
+			}.execute();
 		}
 	}
 

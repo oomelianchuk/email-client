@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class AccountData implements Serializable {
 	private String email;
@@ -27,7 +28,7 @@ public class AccountData implements Serializable {
 	private String imapPort;
 	private String smtpPort;
 	private boolean savePass;
-	private ArrayList<MailFolder> folders;
+	private HashMap<String, MailFolder> folders = new HashMap<String, MailFolder>();
 	private Date lastUpdateData;
 	private boolean runInBackground;
 
@@ -149,6 +150,10 @@ public class AccountData implements Serializable {
 		}
 	}
 
+	public ArrayList<String> getFolderNames() {
+		return new ArrayList<String>(folders.keySet());
+	}
+
 	public String getPopServer() {
 		return popServer;
 	}
@@ -174,21 +179,20 @@ public class AccountData implements Serializable {
 	}
 
 	public void addFolder(MailFolder folder) {
-		if (folders.contains(folder)) {
-			int index = folders.indexOf(folder);
-			folders.get(index).addAllMessages(folder.getMessages());
+		if (folders.containsKey(folder.getName())) {
+			if (folders.get(folder.getName()) != null) {
+				folders.get(folder.getName()).addAllMessages(folder.getMessages());
+			} else {
+				folders.remove(folder.getName());
+				folders.put(folder.getName(), folder);
+			}
 		} else {
-			folders.add(folder);
+			folders.put(folder.getName(), folder);
 		}
 	}
 
 	public MailFolder getFolderByName(String folderName) {
-		for (MailFolder folder : folders) {
-			if (folder.getName().equals(folderName)) {
-				return folder;
-			}
-		}
-		return null;
+		return folders.get(folderName);
 	}
 
 	public String getEmail() {
@@ -217,11 +221,19 @@ public class AccountData implements Serializable {
 	}
 
 	public ArrayList<MailFolder> getFolders() {
-		return folders;
+		return new ArrayList<MailFolder>(folders.values());
 	}
 
 	public void setFolders(ArrayList<MailFolder> folders) {
-		this.folders = folders;
+		folders.forEach(folder -> this.folders.put(folder.getName(), folder));
+	}
+
+	public void setFolderNames(ArrayList<String> folderNames) {
+		folderNames.forEach(folderName -> addFolderName(folderName));
+	}
+
+	public void addFolderName(String folderName) {
+		folders.put(folderName, null);
 	}
 
 	public void serialize() throws IOException {
@@ -244,12 +256,8 @@ public class AccountData implements Serializable {
 		AccountData data = (AccountData) o;
 		return data.getUserName().equals(this.getUserName());
 	}
+
 	public boolean hasFolder(String folderName) {
-		for(MailFolder folder:folders) {
-			if(folder.getName().equals(folderName)) {
-				return true;
-			}
-		}
-		return false;
+		return folders.containsKey(folderName);
 	}
 }

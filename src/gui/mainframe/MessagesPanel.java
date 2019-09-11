@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -21,14 +20,12 @@ import actionclasses.MailLoader;
 import data.AccountData;
 import data.GlobalDataContainer;
 import data.MailFolder;
-import filewriters.FileManager;
 import gui.FrameManager;
 import protokol.MessageContainer;
 
 public class MessagesPanel extends JPanel {
 	private ControlPanel controlPanel;
 	private MessagesTopLine topLine;
-	private int messageAmount;
 	private MailFolder folder;
 
 	public MessagesPanel(MailFolder folder) {
@@ -45,7 +42,7 @@ public class MessagesPanel extends JPanel {
 				AccountData data = GlobalDataContainer.getAccountByName(folder.getAccountName());
 				new SwingWorker<Void, Void>() {
 					protected Void doInBackground() {
-						new MailLoader(FrameManager.connections.get(folder.getAccountName()), data,
+						new MailLoader(GlobalDataContainer.getConnectionByAccount(folder.getAccountName()), data,
 								data.getImapServer() != null ? "imap" : "pop").action();
 						loadMessages();
 						FrameManager.mainFrame.setVisible(false);
@@ -62,7 +59,13 @@ public class MessagesPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				moveMessageToFolder();
+				new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() {
+						moveMessageToFolder();
+						return null;
+					}
+				}.execute();
 			}
 		});
 		this.add(controlPanel);
@@ -132,10 +135,10 @@ public class MessagesPanel extends JPanel {
 		// get all folders of account
 		AccountData account = GlobalDataContainer.getAccountByName(folder.getAccountName());
 		// add all folders except current to array
-		ArrayList<MailFolder> folders = new ArrayList<MailFolder>();
+		ArrayList<String> folders = new ArrayList<String>();
 		account.getFolders().forEach(receivedFolder -> {
 			if (!receivedFolder.equals(folder)) {
-				folders.add(receivedFolder);
+				folders.add(receivedFolder.getName());
 			}
 		});
 		// ask user to choose to which folder does he/she want to remove message
@@ -150,36 +153,8 @@ public class MessagesPanel extends JPanel {
 		JOptionPane.showMessageDialog(FrameManager.mainFrame, "your message moved", "Message moved",
 				JOptionPane.PLAIN_MESSAGE);
 	}
-//TODO: move to GlobalDataContainer
-	/**
-	 * Finds account object in temporary memory
-	 * 
-	 * @return account object
-	 */
-
-	/*
-	 * private AccountData getCurrentAccountData() { AccountData accountToCompare =
-	 * new AccountData(); accountToCompare.set("userName", userName); int index =
-	 * FrameManager.accounts.indexOf(accountToCompare); return
-	 * FrameManager.accounts.get(index); }
-	 */
-//TODO: move to GlobalDataContainer
-	/**
-	 * Finds folder object in temporary memory
-	 * 
-	 * @return folder object
-	 */
-	/*
-	 * private MailFolder getCurrentFolder() { AccountData data =
-	 * getCurrentAccountData(); MailFolder folderToCompare = new MailFolder();
-	 * folderToCompare.setName(folder); int index =
-	 * data.getFolders().indexOf(folderToCompare); return
-	 * data.getFolders().get(index); }
-	 */
 
 	public void loadMessages() {
-		// MailFolder accountFolder = getCurrentFolder();
-		int newMessagesNumber = folder.getMessages().size() - folder.numberOfMessagesOnStart;
 		// get messages from current folder
 		// there are contained only that messages that are loaded during this
 		// session, that's why they are new and will be displayed with red border
@@ -187,49 +162,23 @@ public class MessagesPanel extends JPanel {
 		// this method will also be used to refresh folder, so to prevent load of
 		// exactly the same list of messages, here will be checked if there are any new
 		// messages loaded
-		if (messageAmount == 0 | newMessagesNumber != 0) {
-			System.out.println(newMessagesNumber);
-			ArrayList<MessageContainer> messages;
-			messages = folder.getMessages();
-			if (!messages.isEmpty()) {
-				removeAll();
-				Collections.sort(folder.getMessages());
-				for (int i = 0; i < newMessagesNumber; i++) {
-					MessageRowPanel messageRow = new MessageRowPanel(folder.getMessages().get(i), Color.red);
-					messageRow.checked.addActionListener(new ActionListener() {
+		ArrayList<MessageContainer> messages = folder.getMessages();
+		removeAll();
+		Collections.sort(folder.getMessages());
+		for (int i = 0; i < messages.size(); i++) {
+			MessageRowPanel messageRow = new MessageRowPanel(folder.getMessages().get(i), Color.black);
+			messageRow.checked.addActionListener(new ActionListener() {
 
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							if (messageRow.checked.isSelected()) {
-								controlPanel.addCheckedMessage(messageRow);
-							} else {
-								controlPanel.removeCheckedMessage(messageRow);
-							}
-						}
-					});
-					this.add(messageRow);
-				}
-				// the rest of messages will be displayed with black border
-				for (int i = newMessagesNumber; i < messages.size(); i++) {
-					//if (!folder.getMessages().contains(messages.get(i)) | newMessagesNumber >= messages.size()) {
-						MessageRowPanel messageRow = new MessageRowPanel(messages.get(i), Color.black);
-						messageRow.checked.addActionListener(new ActionListener() {
-
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								if (messageRow.checked.isSelected()) {
-									controlPanel.addCheckedMessage(messageRow);
-								} else {
-									controlPanel.removeCheckedMessage(messageRow);
-								}
-							}
-
-						});
-						this.add(messageRow);
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (messageRow.checked.isSelected()) {
+						controlPanel.addCheckedMessage(messageRow);
+					} else {
+						controlPanel.removeCheckedMessage(messageRow);
 					}
-				//}
-				messageAmount = messages.size();
-			}
+				}
+			});
+			this.add(messageRow);
 		}
 	}
 

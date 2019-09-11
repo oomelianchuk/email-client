@@ -1,12 +1,9 @@
 package protokol;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -35,9 +32,6 @@ import javax.swing.JProgressBar;
 import org.apache.logging.log4j.Logger;
 
 import data.AccountData;
-import data.MailFolder;
-import filewriters.FileManager;
-import filewriters.XMLFileManager;
 import gui.FrameManager;
 
 public class MessageManagerImpl implements MessageManager {
@@ -62,7 +56,7 @@ public class MessageManagerImpl implements MessageManager {
 
 		// search for specified message
 		Message[] ourMessage = new MessageSearcher().findMessage(folder, messageContainer);
-
+		System.out.println(ourMessage[0].getSubject());
 		// open folder to move message in
 		Folder newFolder = session.getDefaultFolder().getFolder(newFolderName);
 		openFolder(newFolder, Folder.READ_WRITE, messageContainer.getAccountName());
@@ -78,7 +72,6 @@ public class MessageManagerImpl implements MessageManager {
 		FrameManager.logger.info("closing " + newFolder);
 		newFolder.close();
 		FrameManager.logger.info(newFolder + " closed");
-
 	}
 
 	/**
@@ -128,22 +121,49 @@ public class MessageManagerImpl implements MessageManager {
 	 * @return loaded file
 	 */
 	@Override
-	public File downloadAttachment(Store session, String path, String folderName, MessageContainer messageContainer,
+	public void downloadAttachment(Store session, String path, String folderName, MessageContainer messageContainer,
 			String attachmentName) {
 		FrameManager.logger.info("starting attachment download to " + path);
 		try {
 			Folder folder = session.getDefaultFolder().getFolder(folderName);
 			openFolder(folder, Folder.READ_ONLY, messageContainer.getAccountName());
 			Message[] ourMessage = new MessageSearcher().findMessage(folder, messageContainer);
-			File result = new FileManager(path).downloadAttachment(ourMessage[0], attachmentName);
+			saveAttachmentFile(ourMessage[0], path, attachmentName);
 			folder.close();
-			return result;
 		} catch (MessagingException e) {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame, "Attachment loading failed",
 					"Attachment loading failed", JOptionPane.ERROR_MESSAGE);
 			FrameManager.logger.error("opening/closing folder/finding message : " + e.toString());
 		}
-		return null;
+	}
+
+	private void saveAttachmentFile(Message message, String path, String attachmentName) {
+		FrameManager.logger.info("download attachment " + attachmentName);
+		try {
+			Multipart multipart = (Multipart) message.getContent();
+			for (int i = 0; i < multipart.getCount(); i++) {
+				BodyPart bodyPart = multipart.getBodyPart(i);
+				if (!Part.ATTACHMENT.equalsIgnoreCase(bodyPart.getDisposition())) {
+					continue; // dealing with attachments only
+				}
+				if (bodyPart.getFileName() != null && bodyPart.getFileName().contains(attachmentName)) {
+					FrameManager.logger.info("attachment found, strarting download");
+					InputStream is = bodyPart.getInputStream();
+					File f = new File(path + "/" + bodyPart.getFileName());
+					FileOutputStream fos = new FileOutputStream(f);
+					byte[] buf = new byte[4096];
+					int bytesRead;
+					while ((bytesRead = is.read(buf)) != -1) {
+						fos.write(buf, 0, bytesRead);
+					}
+					fos.close();
+				}
+			}
+		} catch (IOException | MessagingException e) {
+			JOptionPane.showMessageDialog(FrameManager.mainFrame, "Error loading attachment",
+					"Error loading attachment", JOptionPane.ERROR_MESSAGE);
+			FrameManager.logger.error("while loading attachment : " + e.toString());
+		}
 	}
 
 	/**
@@ -354,34 +374,35 @@ public class MessageManagerImpl implements MessageManager {
 		if (logger == null) {
 			logger = FrameManager.logger;
 		}
-		//logger.info("download messages in folder " + folderName + " after date " + date.toString());
+		// logger.info("download messages in folder " + folderName + " after date " +
+		// date.toString());
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		calendar.add(Calendar.DATE, -1);
 		Date yesterday = calendar.getTime();
-		ArrayList<MessageContainer> messageInfos = new ArrayList<MessageContainer>();
-		Message[] messages = new Message[0];
-		Folder folder;
+		ArrayList<MessageContainer> newMessages = new ArrayList<MessageContainer>();
 		try {
-			//logger.info("search for messages after " + yesterday);
-			folder = session.getDefaultFolder().getFolder(folderName);
+			// logger.info("search for messages after " + yesterday);
+			Folder folder = session.getDefaultFolder().getFolder(folderName);
 
 			openFolder(folder, Folder.READ_ONLY, userName, logger);
-			messageInfos = new MessageSearcher().findMessagesAfterDate(date, folder, userName, logger);
-			messageInfos.forEach(message -> downloadMessage(message, userName, folderName));
-			if (!messageInfos.isEmpty()) {
-				//logger.info("new messages were loaded in folder " + folderName);
+			Message[] messages = new MessageSearcher().findMessagesAfterDate(date, folder, userName, logger);
+			for (Message message : messages) {
+				newMessages.add(new MessageContainer(message, userName, folderName));
+			}
+			if (!newMessages.isEmpty()) {
+				// logger.info("new messages were loaded in folder " + folderName);
 			} else {
-				//logger.info("no new messages found in folder" + folderName);
+				// logger.info("no new messages found in folder" + folderName);
 
 			}
-			//logger.info("closing " + folder.getFullName() + " folder");
+			// logger.info("closing " + folder.getFullName() + " folder");
 			folder.close();
-			//logger.info("folder " + folder.getFullName() + " closed");
-		} catch (MessagingException e) {
+			// logger.info("folder " + folder.getFullName() + " closed");
+		} catch (MessagingException | IOException e) {
 			logger.error("loading messages after date : " + e.toString());
 		}
-		return messageInfos;
+		return newMessages;
 	}
 
 	/**
@@ -435,7 +456,7 @@ public class MessageManagerImpl implements MessageManager {
 					}
 					logger.info("update finished");
 				}
-				//logger.info("open folder " + folder.getFullName() + " for user " + userName);
+				// logger.info("open folder " + folder.getFullName() + " for user " + userName);
 				folder.open(premission);
 			} catch (MessagingException e) {
 				try {
@@ -495,58 +516,6 @@ public class MessageManagerImpl implements MessageManager {
 		} catch (MessagingException e) {
 			FrameManager.logger.error("adding attachment : " + e.toString());
 		}
-	}
-
-	/**
-	 * This method saves message in hdd
-	 * 
-	 * @param message    message that should be saved
-	 * @param userName   user whom belongs this message
-	 * @param folderName name of mail folder of this message
-	 * @param path       where to save this message
-	 * @return short info about message
-	 */
-	private MessageContainer downloadMessage(MessageContainer message, String userName, String folderName) {
-		FrameManager.logger.info("downloading message");
-		try {
-			FrameManager.logger.info("creating path to message");
-			String messageXMLfolderName = message.getFrom() + message.getSubject() + message.getReceivedDate();
-			if (messageXMLfolderName.equals("")) {
-				messageXMLfolderName = "defaultFolder";
-			} else {
-				messageXMLfolderName = Integer.toString(folderName.hashCode());
-			}
-
-			// create folder to save message
-			String filePath = "src/" + userName +"/" + messageXMLfolderName;
-			FrameManager.logger.info("path to message " + filePath);
-			FrameManager.logger.info("create directory");
-			Files.createDirectories(Paths.get(filePath));
-			FrameManager.logger.info("directory created");
-/*			FrameManager.logger.info("creating xml file");
-			// create xml file with short information about message
-			File newFile = new File(filePath + "/mainMessage.xml");
-
-			boolean created = newFile.createNewFile();
-			FrameManager.logger.info("xml file created " + created);
-			if (created) {
-				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(newFile, false)));
-				out.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-				out.close();
-			}
-
-			XMLFileManager xmlWriter = new XMLFileManager(filePath + "/mainMessage.xml", "message");*/
-			// take message apart (single out message text and html view ,determine if
-			// message has attachment and if yes than saves it's file name
-			message.setPath(filePath);
-			System.out.println(message);
-			// write short information in file
-			message.serialize();
-			return message;
-		} catch (IOException e) {
-			FrameManager.logger.error("downloading message " + e.toString());
-		}
-		return null;
 	}
 
 	/**

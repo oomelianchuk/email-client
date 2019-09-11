@@ -80,12 +80,19 @@ class TreeClickListener extends MouseAdapter {
 				TreeNode[] path = folderNode.getPath();
 				// if click was not on "compose" menu
 				if (!path[path.length - 1].toString().equals("Compose")) {
-					String userName= path[1].toString();
-					String folderName=path[2].toString();
-					MailFolder folder =new MailFolder("src/"+userName+"/"+ folderName);
-					GlobalDataContainer.getAccountByName(userName).addFolder(folder);
-					System.out.println(folder.getMessages().size());
-					messagesPanel = new MessagesPanel(folder);
+					String userName = path[1].toString();
+					String folderName = path[2].toString();
+					MailFolder folder = new MailFolder("src/" + userName + "/" + folderName);
+					if (GlobalDataContainer.getAccountByName(userName).getFolderByName(folderName) != null
+							&& GlobalDataContainer.getAccountByName(userName).getFolderByName(folderName).getMessages()
+									.size()
+									+ GlobalDataContainer.getAccountByName(userName)
+											.getFolderByName(folderName).numberOfMessagesOnStart != folder.getMessages()
+													.size()) {
+						GlobalDataContainer.getAccountByName(userName).addFolder(folder);
+					}
+					messagesPanel = new MessagesPanel(
+							GlobalDataContainer.getAccountByName(userName).getFolderByName(folderName));
 					messagesPanel.loadMessages();
 					if (FrameManager.mainFrame.getRightPart().getClass().equals(OpenedMessagePanel.class)) {
 						JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -99,10 +106,8 @@ class TreeClickListener extends MouseAdapter {
 						FrameManager.mainFrame.setRightPartScrollPane(messagesPanel);
 					}
 				} else {
-					AccountData accountToCompare = new AccountData();
-					accountToCompare.set("userName", path[1].toString());
 					OpenedMessagePanel oPanel = new OpenedMessagePanel(path[1].toString(),
-							FrameManager.accounts.get(FrameManager.accounts.indexOf(accountToCompare)).getEmail(), "",
+							GlobalDataContainer.getAccountByName(path[1].toString()).getEmail(), "",
 							"", "");
 					if (messagesPanel != null) {
 						messagesPanel.addOpenedMessagePanel(oPanel);
@@ -135,10 +140,10 @@ class TreeClickListener extends MouseAdapter {
 
 			AccountData accountToCompare = new AccountData();
 			accountToCompare.set("userName", userName);
-			FrameManager.accounts.get(FrameManager.accounts.indexOf(accountToCompare)).set("userName", newUserName);
-			ConnectionManager connection = FrameManager.connections.get(userName);
-			FrameManager.connections.remove(userName);
-			FrameManager.connections.put(newUserName, connection);
+			GlobalDataContainer.getAccountByName(userName).set("userName", newUserName);
+			ConnectionManager connection = GlobalDataContainer.getConnectionByAccount(userName);
+			GlobalDataContainer.deleteConnection(connection);
+			GlobalDataContainer.addConnection(newUserName, connection);
 			new XMLFileManager("src/accounts.xml").renameAccount(userName, newUserName);
 			new File("src/" + userName).renameTo(new File("src/" + newUserName));
 		}
@@ -149,9 +154,7 @@ class TreeClickListener extends MouseAdapter {
 		String newPassword = JOptionPane.showInputDialog(FrameManager.mainFrame, "enter new password",
 				"changing password", JOptionPane.QUESTION_MESSAGE);
 		if (newPassword != null) {
-			AccountData accountToCompare = new AccountData();
-			accountToCompare.set("userName", userName);
-			FrameManager.accounts.get(FrameManager.accounts.indexOf(accountToCompare)).set("password", newPassword);
+			GlobalDataContainer.getAccountByName(userName).set("password", newPassword);
 		}
 		JOptionPane.showMessageDialog(FrameManager.mainFrame,
 				"Password changed, to make changes be used in program, restart it", "Password Changed",

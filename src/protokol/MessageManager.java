@@ -1,6 +1,5 @@
 package protokol;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -12,7 +11,6 @@ import javax.swing.JProgressBar;
 import org.apache.logging.log4j.Logger;
 
 import data.AccountData;
-import data.MailFolder;
 
 public interface MessageManager {
 	void moveMessageToFolder(Store session, String newFolderName, MessageContainer messageContainer)
@@ -20,7 +18,7 @@ public interface MessageManager {
 
 	ArrayList<String> getFolderNames(Store session, AccountData data);
 
-	File downloadAttachment(Store session, String path, String folderName, MessageContainer messageContainer,
+	void downloadAttachment(Store session, String path, String folderName, MessageContainer messageContainer,
 			String attachmentName);
 
 	void deleteMessage(Store session, String folderName, MessageContainer messageContainer);

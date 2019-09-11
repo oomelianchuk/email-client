@@ -25,7 +25,6 @@ import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.io.FileUtils;
 
-import data.AccountData;
 import data.GlobalDataContainer;
 import data.MailFolder;
 import gui.FrameManager;
@@ -51,11 +50,8 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 			throws IOException, MessagingException {
 		this(message);
 		generatePath(userName, folderName);
-		// this.pathToMessageBody = path + "/messageBody" + message.getMessageNumber() +
-		// ".txt";
 		if (message.getContent() instanceof Multipart) {
 			Multipart content = (Multipart) message.getContent();
-			System.out.println("multipart");
 			multiMessage(content);
 		} else {
 			String charset = message.getContentType();
@@ -103,7 +99,6 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 		try {
 			Files.createDirectories(Paths.get(path));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -141,13 +136,10 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 	}
 
 	private void getMessageText(Part part) {
-		System.out.println("write file");
 		try {
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(part.getInputStream(), "Windows-1251"));
 			String line = in.readLine();
-			System.out.println(part.getContentType());
-			System.out.println(line);
 			while (line != null) {
 				messageText.append(line + "\n");
 				line = in.readLine();
@@ -182,12 +174,21 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 
 //TODO: separate
 	public void delete() throws IOException {
-
 		MailFolder folder = GlobalDataContainer.getAccountByName(getAccountName()).getFolderByName(getFolderName());
 		folder.getMessages().remove(this);
-		FrameManager.connections.get(getAccountName()).deleteMessage(getFolderName(), this);
+		GlobalDataContainer.getConnectionByAccount(getAccountName()).deleteMessage(getFolderName(), this);
 		FileUtils.deleteDirectory(new File(path));
+	}
 
+	public void moveToFolder(String folder) {
+		try {
+			delete();
+			generatePath(getAccountName(), folder);
+			GlobalDataContainer.getAccountByName(getAccountName()).getFolderByName(getFolderName()).addMessage(this);
+			serialize();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getFolderName() {

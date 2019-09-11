@@ -42,8 +42,6 @@ public class FrameManager {
 	}
 	public static MainFrame mainFrame;
 	public static NewAccountDialog popUP;
-	public static ArrayList<AccountData> accounts = new ArrayList<AccountData>();
-	public static HashMap<String, ConnectionManager> connections = new HashMap<String, ConnectionManager>();
 	private static HashMap<String, MailLoader> threads = new HashMap<String, MailLoader>();
 	private static boolean debug = false;
 	public static final Logger logger = LogManager.getLogger(FrameManager.class);
@@ -76,12 +74,12 @@ public class FrameManager {
 			logger.info("thread joint");
 			logger.info("close connections");
 			// close all connections for this account
-			connections.get(userName).closeAllSessions();
+			GlobalDataContainer.getConnectionByAccount(userName).closeAllSessions();
 			logger.info("remove from temporary program memory");
 			// remove account from temporary program memory
-			for (AccountData account : accounts) {
+			for (AccountData account : GlobalDataContainer.getAccounts()) {
 				if (account.getUserName().equals(userName)) {
-					accounts.remove(account);
+					GlobalDataContainer.getAccounts().remove(account);
 					break;
 				}
 			}
@@ -178,8 +176,8 @@ public class FrameManager {
 			logger.info("add info in temporary memory");
 			// save connections and short info for this account in temp memory,
 			// so that it is reachable from any point of program
-			connections.put(data.getUserName(), connectionManager);
-			accounts.add(data);
+			GlobalDataContainer.addConnection(data.getUserName(), connectionManager);
+			GlobalDataContainer.addAccount(data);
 			// start background thread to check for new mail
 			if (Boolean.parseBoolean(data.get("runInBackground"))) {
 				MailLoader thread = new MailLoader(connectionManager, data,
@@ -199,18 +197,16 @@ public class FrameManager {
 		logger.info("update connection for " + userName);
 		threads.forEach((name, thread) -> thread.join());
 		logger.info("all threads paused");
-		AccountData accountToCompare = new AccountData();
-		accountToCompare.set("userName", userName);
-		AccountData data = accounts.get(accounts.indexOf(accountToCompare));
+		AccountData data = GlobalDataContainer.getAccountByName(userName);
 		boolean pop = true;
 		boolean imap = true;
 		if (data.getPopServer() != null) {
 			logger.info("check pop connection");
-			pop = connections.get(userName).checkPopConnection(data);
+			pop = GlobalDataContainer.getConnectionByAccount(userName).checkPopConnection(data);
 		}
 		if (data.getImapServer() != null) {
 			logger.info("check imap connection");
-			imap = connections.get(userName).checkImapConnection(data);
+			imap = GlobalDataContainer.getConnectionByAccount(userName).checkImapConnection(data);
 		}
 
 		threads.forEach((name, thread) -> thread.runAsThread());
@@ -279,27 +275,26 @@ public class FrameManager {
 		mainFrame.pack();
 		mainFrame.setVisible(true);
 		// run background threads to check for new mail for all accounts
-		for (AccountData data : accounts) {
+		for (AccountData data : GlobalDataContainer.getAccounts()) {
 			// new LoggerConfigurator().setUpLoggerForUser(data.getUserName());
 			if (Boolean.parseBoolean(data.get("runInBackground"))) {
 				logger.info("starting background thread for " + data.getUserName());
-				MailLoader thread = new MailLoader(connections.get(data.getUserName()), data,
+				MailLoader thread = new MailLoader(GlobalDataContainer.getConnectionByAccount(data.getUserName()), data,
 						data.getImapServer() == null ? "pop" : "imap");
 				thread.runAsThread();
 				threads.put(data.getUserName(), thread);
 				logger.info("background thread started");
 			}
 		}
-		GlobalDataContainer.setAccounts(accounts);
 		// after main frame is closed
 		mainFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				logger.info("closing program");
 				e.getWindow().dispose();
 				logger.info("window disposed");
-				if (!accounts.isEmpty()) {
+				if (!GlobalDataContainer.getAccounts().isEmpty()) {
 					// wait until last mail update circle ends and close threads
-					for (AccountData account : accounts) {
+					for (AccountData account : GlobalDataContainer.getAccounts()) {
 						// close all connections for account
 						if (Boolean.parseBoolean(account.get("runInBackground"))) {
 							logger.info("closing thread for " + account.getUserName());
@@ -307,7 +302,7 @@ public class FrameManager {
 							logger.info("thread closed");
 						}
 						logger.info("closing connections for " + account.getUserName());
-						connections.get(account.getUserName()).closeAllSessions();
+						GlobalDataContainer.getConnectionByAccount(account.getUserName()).closeAllSessions();
 						logger.info("connections closed");
 						logger.info("rewriting xml");
 						// rewrite account data to save changed data

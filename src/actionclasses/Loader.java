@@ -12,6 +12,7 @@ import javax.swing.JProgressBar;
 import org.apache.commons.io.FileUtils;
 
 import data.AccountData;
+import data.GlobalDataContainer;
 import data.MailFolder;
 import filewriters.XMLFileManager;
 import gui.AskPasswordFrame;
@@ -170,9 +171,10 @@ public class Loader implements BackgroundAction {
 					this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol);
 				}
 				data.setLastUpdateDate(new Date());
-				FrameManager.accounts.add(data);
-				FrameManager.connections.put(data.getUserName(), connectionManager);
+				GlobalDataContainer.addAccount(data);
+				GlobalDataContainer.addConnection(data.getUserName(), connectionManager);
 				mainFrame.addNewAccount(data);
+				System.out.println(data.getFolderByName("INBOX").numberOfMessagesOnStart);
 				FrameManager.logger.info("configuration for account " + data.getUserName() + " finished");
 			}
 			this.progressBar.setValue(this.progressBar.getMaximum());
@@ -189,16 +191,16 @@ public class Loader implements BackgroundAction {
 		}
 
 		// place to store folders that are present on server and in user account
-		ArrayList<MailFolder> newDataFolder = new ArrayList<MailFolder>();
+		ArrayList<String> newDataFolder = new ArrayList<String>();
 		// for each folder in account check if it is present on server
-		for (MailFolder folder : data.getFolders()) {
+		for (String folderName : data.getFolderNames()) {
 
 			// if there are any folder in account, that are absent on server
-			if (!newFolders.contains(folder.getName())) {
-				FrameManager.logger.info(folder.getName() + " doesn't exist and should be deleted");
-				this.label.setText(folder.getName() + " doesn't exist and should be deleted");
-				String dir = "src/" + data.getUserName()
-						+ folder.getName().replaceAll("[", "").replaceAll("]", "");
+			if (!newFolders.contains(folderName)) {
+				FrameManager.logger.info(folderName + " doesn't exist and should be deleted");
+				this.label.setText(folderName + " doesn't exist and should be deleted");
+				// TODO: remove path pattern
+				String dir = "src/" + data.getUserName() + "/" + folderName.replaceAll("[", "").replaceAll("]", "");
 				// delete this folder with all mail
 				try {
 					if (new File(dir).exists()) {
@@ -212,13 +214,13 @@ public class Loader implements BackgroundAction {
 			}
 			// add folder to temporary array (so if there
 			else {
-				newDataFolder.add(folder);
+				newDataFolder.add(folderName);
 			}
 		}
 
 		// set updated folders (if folder is absent on server it should stay in program
 		// memory)
-		data.setFolders(newDataFolder);
+		data.setFolderNames(newDataFolder);
 
 		// for each folder from server check if it is present in account
 		for (String folder : newFolders) {
@@ -236,9 +238,11 @@ public class Loader implements BackgroundAction {
 	}
 
 	private void updateMail(AccountData data, ConnectionManager connectionManager, String protocol) {
-		for (MailFolder folder : data.getFolders()) {
-			folder.getMessages().addAll(connectionManager.downloadMailAfterDate(protocol, data.getUserName(),
-					folder.getName().replaceAll("\\[", "").replaceAll("\\]", ""), data.getLastUpdateData(), null));
+		for (String folderName : data.getFolderNames()) {
+			//TODO: pass real logger
+			data.addFolder(new MailFolder(data.getUserName(), folderName, connectionManager
+					.downloadMailAfterDate(protocol, data.getUserName(), folderName, data.getLastUpdateData(), null)));
+
 		}
 	}
 

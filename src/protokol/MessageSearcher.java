@@ -1,6 +1,5 @@
 package protokol;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,9 +41,9 @@ public class MessageSearcher {
 		return folder.search(searchCondition);
 	}
 
-	public ArrayList<MessageContainer> findMessagesAfterDate(Date date, Folder folder, String userName, Logger logger)
+	public Message[] findMessagesAfterDate(Date date, Folder folder, String userName, Logger logger)
 			throws MessagingException {
-		ArrayList<MessageContainer> result = new ArrayList<MessageContainer>();
+		ArrayList<Message> result = new ArrayList<Message>();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		calendar.add(Calendar.DATE, -1);
@@ -57,20 +56,13 @@ public class MessageSearcher {
 		// and than "manually" search for needed date and time
 		for (Message message : messages) {
 			if (message.getReceivedDate().compareTo(date) > 0) {
-				MessageContainer match;
-				try {
-					match = new MessageContainer(message, userName,
-							folder.getFullName().replaceAll("\\]", "").replaceAll("\\[", ""));
-
-					if (match != null) {
-						result.add(match);
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				result.add(message);
 			}
 		}
-		return result;
+		messages = new Message[result.toArray().length];
+		for(int i=0; i< messages.length;i++) {
+			messages[i]=(Message)result.toArray()[i];
+		}
+		return messages;
 	}
 }
