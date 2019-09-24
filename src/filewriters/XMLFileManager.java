@@ -200,7 +200,7 @@ public class XMLFileManager {
 							// to rewrite folders old folder nodes should be deleted and than new created
 							// because it's possible that number of folders has changed
 							root.removeChild(node);
-							if (accountData.getFolders() != null) {
+							if (accountData.getFolders().get(0) != null) {
 								Element newFolersNode = document.createElement("folders");
 								for (MailFolder folder : accountData.getFolders()) {
 									Element folderNode = document.createElement("folder");

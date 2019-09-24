@@ -54,6 +54,7 @@ public class FrameManager {
 	public static String getLanguageProperty(String propertyName) {
 		return languageProperties.getProperty(propertyName);
 	}
+
 	public static String getProgramSetting(String propertyName) {
 		return programSettings.getProperty(propertyName);
 	}
@@ -71,8 +72,10 @@ public class FrameManager {
 		logger.info("deleting account " + userName);
 		// delete account node in xml file
 		try {
-			logger.info("delete directory " + FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName));
-			FileUtils.deleteDirectory(new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName)));
+			logger.info("delete directory "
+					+ FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName));
+			FileUtils.deleteDirectory(
+					new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName)));
 
 			logger.info("delete account from xml");
 			XMLFileManager xml = new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"));
@@ -237,7 +240,8 @@ public class FrameManager {
 
 	private static void configureTheame() {
 		// read theme settings and set selected theme
-		if (new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).getLookAndFeel().equals("system")) {
+		if (new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).getLookAndFeel()
+				.equals("system")) {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				logger.info("system look and feel set");
@@ -287,7 +291,7 @@ public class FrameManager {
 		}
 		try (InputStream input = new FileInputStream("src/settings.properties")) {
 			programSettings.load(input);
-			
+
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -303,12 +307,14 @@ public class FrameManager {
 		for (AccountData data : GlobalDataContainer.getAccounts()) {
 			// new LoggerConfigurator().setUpLoggerForUser(data.getUserName());
 			if (Boolean.parseBoolean(data.get("runInBackground"))) {
-				logger.info("starting background thread for " + data.getUserName());
-				MailLoader thread = new MailLoader(GlobalDataContainer.getConnectionByAccount(data.getUserName()), data,
-						data.getImapServer() == null ? "pop" : "imap");
-				thread.runAsThread();
-				threads.put(data.getUserName(), thread);
-				logger.info("background thread started");
+				if (GlobalDataContainer.getConnectionByAccount(data.getUserName()) != null) {
+					logger.info("starting background thread for " + data.getUserName());
+					MailLoader thread = new MailLoader(GlobalDataContainer.getConnectionByAccount(data.getUserName()),
+							data, data.getImapServer() == null ? "pop" : "imap");
+					thread.runAsThread();
+					threads.put(data.getUserName(), thread);
+					logger.info("background thread started");
+				}
 			}
 		}
 		// after main frame is closed
@@ -321,17 +327,22 @@ public class FrameManager {
 					// wait until last mail update circle ends and close threads
 					for (AccountData account : GlobalDataContainer.getAccounts()) {
 						// close all connections for account
-						if (Boolean.parseBoolean(account.get("runInBackground"))) {
+						if (Boolean.parseBoolean(account.get("runInBackground"))
+								&& threads.get(account.getUserName()) != null) {
 							logger.info("closing thread for " + account.getUserName());
 							threads.get(account.getUserName()).join();
 							logger.info("thread closed");
 						}
-						logger.info("closing connections for " + account.getUserName());
-						GlobalDataContainer.getConnectionByAccount(account.getUserName()).closeAllSessions();
-						logger.info("connections closed");
-						logger.info("rewriting xml");
+
 						// rewrite account data to save changed data
-						new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).rewriteAccount(account);
+						if (GlobalDataContainer.getConnectionByAccount(account.getUserName()) != null) {
+							logger.info("closing connections for " + account.getUserName());
+							GlobalDataContainer.getConnectionByAccount(account.getUserName()).closeAllSessions();
+							logger.info("connections closed");
+						}
+						logger.info("rewriting xml");
+						new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"))
+								.rewriteAccount(account);
 						logger.info("xml rewrote");
 					}
 				}

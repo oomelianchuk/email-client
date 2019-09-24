@@ -85,14 +85,7 @@ class TreeClickListener extends MouseAdapter {
 					MailFolder folder = new MailFolder(FrameManager.getProgramSetting("pathToUserFolders")
 							.replaceAll("\\{userName\\}", userName)
 							.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", "")));
-					if (GlobalDataContainer.getAccountByName(userName).getFolderByName(folderName) != null
-							&& GlobalDataContainer.getAccountByName(userName).getFolderByName(folderName).getMessages()
-									.size()
-									+ GlobalDataContainer.getAccountByName(userName)
-											.getFolderByName(folderName).numberOfMessagesOnStart != folder.getMessages()
-													.size()) {
-						GlobalDataContainer.getAccountByName(userName).addFolder(folder);
-					}
+					GlobalDataContainer.getAccountByName(userName).addFolder(folder);
 					messagesPanel = new MessagesPanel(
 							GlobalDataContainer.getAccountByName(userName).getFolderByName(folderName));
 					messagesPanel.loadMessages();

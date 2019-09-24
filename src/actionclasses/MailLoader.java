@@ -61,7 +61,7 @@ public class MailLoader implements BackgroundAction, Runnable {
 		logger.info("loading messages in background");
 		boolean newMessage = false;
 		ArrayList<MessageContainer> messages = new ArrayList<MessageContainer>();
-		for (int i = 0; i < data.getFolders().size(); i++) {
+		for (int i = 0; i < data.getFolders().size() && data.getFolders().get(i) != null; i++) {
 			messages = connectionManager.downloadMailAfterDate(protocol, data.getUserName(),
 					data.getFolders().get(i).getName().replaceAll("\\[", "").replaceAll("\\]", ""),
 					data.getLastUpdateData() == null ? new Date() : data.getLastUpdateData(), logger);
@@ -81,7 +81,9 @@ public class MailLoader implements BackgroundAction, Runnable {
 		}
 		if (newMessage) {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame,
-					FrameManager.getLanguageProperty("popup.newMessage").replaceAll("\\{userName\\}", data.getUserName()), FrameManager.getLanguageProperty("popup.title.newMessage"), JOptionPane.PLAIN_MESSAGE);
+					FrameManager.getLanguageProperty("popup.newMessage").replaceAll("\\{userName\\}",
+							data.getUserName()),
+					FrameManager.getLanguageProperty("popup.title.newMessage"), JOptionPane.PLAIN_MESSAGE);
 			data.setLastUpdateDate(new Date());
 			logger.info("new messages loaded");
 		}

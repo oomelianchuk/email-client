@@ -183,7 +183,9 @@ public class Loader implements BackgroundAction {
 				}
 				data.setLastUpdateDate(new Date());
 				GlobalDataContainer.addAccount(data);
-				GlobalDataContainer.addConnection(data.getUserName(), connectionManager);
+				if (foldersChecked) {
+					GlobalDataContainer.addConnection(data.getUserName(), connectionManager);
+				}
 				mainFrame.addNewAccount(data);
 				FrameManager.logger.info("configuration for account " + data.getUserName() + " finished");
 			}

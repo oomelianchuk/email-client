@@ -184,9 +184,13 @@ public class MainFrame extends JFrame {
 		DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(data.getUserName());
 		newChild.add(new DefaultMutableTreeNode(FrameManager.getLanguageProperty("node.compose")));
 		ArrayList<MailFolder> folders = data.getFolders();
-		if (folders != null) {
+		if (folders.get(0)!= null) {
 			for (MailFolder folder : folders) {
 				newChild.add(new DefaultMutableTreeNode(folder.getName()));
+			}
+		}else {
+			for(String folderName:data.getFolderNames()) {
+				newChild.add(new DefaultMutableTreeNode(folderName));
 			}
 		}
 		dm.insertNodeInto(newChild, root, root.getChildCount());
