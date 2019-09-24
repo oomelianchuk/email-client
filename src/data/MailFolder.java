@@ -46,7 +46,7 @@ public class MailFolder implements Serializable {
 	}
 
 	public String getName() {
-		return pathToFolder.split("/")[2];
+		return pathToFolder.split("/")[3];
 	}
 
 	public String getAccountName() {
@@ -79,7 +79,9 @@ public class MailFolder implements Serializable {
 	}
 
 	public MailFolder(String userName, String folderName, ArrayList<MessageContainer> messages) {
-		this.pathToFolder = "src/" + userName + "/" + folderName;
+		this.pathToFolder =  FrameManager.getProgramSetting("pathToUserFolders")
+				.replaceAll("\\{userName\\}", userName)
+				.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", ""));
 		this.messages = messages;
 		numberOfMessagesOnStart = messages.size();
 	}

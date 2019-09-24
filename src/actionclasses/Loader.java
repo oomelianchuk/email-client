@@ -40,7 +40,7 @@ public class Loader implements BackgroundAction {
 		this.progressBar = progressBar;
 		this.label.setText(FrameManager.getLanguageProperty("loader.label.configuring"));
 		// first get short information from xml file
-		XMLFileManager xml = new XMLFileManager("src/accounts.xml");
+		XMLFileManager xml = new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"));
 		ArrayList<AccountData> accountDatas = (ArrayList<AccountData>) xml.getAccountDaten();
 		FrameManager.logger.info("data has been read");
 		// than, if there are some account
@@ -210,7 +210,9 @@ public class Loader implements BackgroundAction {
 				FrameManager.logger.info(folderName + FrameManager.getLanguageProperty("loader.label.folderNotExist"));
 				this.label.setText(folderName + " doesn't exist and should be deleted");
 				// TODO: remove path pattern
-				String dir = "src/" + data.getUserName() + "/" + folderName.replaceAll("[", "").replaceAll("]", "");
+				String dir = FrameManager.getProgramSetting("pathToUserFolders")
+						.replaceAll("\\{userName\\}", data.getUserName())
+						.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", ""));
 				// delete this folder with all mail
 				try {
 					if (new File(dir).exists()) {

@@ -237,6 +237,7 @@ public class AccountData implements Serializable {
 	}
 
 	public void serialize() throws IOException {
+		//TODO future thoughts
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("src/accounts.out"));
 		out.writeObject(this);
 		out.close();

@@ -49,11 +49,13 @@ public class FrameManager {
 	private static boolean debug = false;
 	public static final Logger logger = LogManager.getLogger(FrameManager.class);
 	private final static Properties languageProperties = new Properties();
-	private static HashMap<String, Boolean> used = new HashMap<String, Boolean>();
+	private final static Properties programSettings = new Properties();
 
 	public static String getLanguageProperty(String propertyName) {
-		used.put(propertyName, true);
 		return languageProperties.getProperty(propertyName);
+	}
+	public static String getProgramSetting(String propertyName) {
+		return programSettings.getProperty(propertyName);
 	}
 
 	public void showPopUP() {
@@ -69,11 +71,11 @@ public class FrameManager {
 		logger.info("deleting account " + userName);
 		// delete account node in xml file
 		try {
-			logger.info("delete directory " + "src/" + userName);
-			FileUtils.deleteDirectory(new File("src/" + userName));
+			logger.info("delete directory " + FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName));
+			FileUtils.deleteDirectory(new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName)));
 
 			logger.info("delete account from xml");
-			XMLFileManager xml = new XMLFileManager("src/accounts.xml");
+			XMLFileManager xml = new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"));
 			xml.deleteAccount(userName);
 
 			logger.info("joing thread");
@@ -154,7 +156,7 @@ public class FrameManager {
 			mainFrame.addNewAccount(data);
 			logger.info("write account in xml");
 			// create account node in xml file
-			XMLFileManager xml = new XMLFileManager("src/accounts.xml");
+			XMLFileManager xml = new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"));
 			xml.addNewAccount(data);
 			// start loading mail for account
 			// create a progress bar to display the progress
@@ -235,7 +237,7 @@ public class FrameManager {
 
 	private static void configureTheame() {
 		// read theme settings and set selected theme
-		if (new XMLFileManager("src/accounts.xml").getLookAndFeel().equals("system")) {
+		if (new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).getLookAndFeel().equals("system")) {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				logger.info("system look and feel set");
@@ -278,14 +280,14 @@ public class FrameManager {
 	public static void main(String[] args) {
 
 		try (InputStream input = new FileInputStream("src/en.properties")) {
-
-			// Properties prop = new Properties();
-
-			// load a properties file
-			// prop.load(input);
 			languageProperties.load(input);
-			languageProperties.keySet().forEach(property -> used.put(property.toString(), false));
 
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		try (InputStream input = new FileInputStream("src/settings.properties")) {
+			programSettings.load(input);
+			
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -329,11 +331,10 @@ public class FrameManager {
 						logger.info("connections closed");
 						logger.info("rewriting xml");
 						// rewrite account data to save changed data
-						new XMLFileManager("src/accounts.xml").rewriteAccount(account);
+						new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).rewriteAccount(account);
 						logger.info("xml rewrote");
 					}
 				}
-				System.out.println(used);
 				System.exit(0);
 			}
 		});

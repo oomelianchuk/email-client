@@ -100,7 +100,7 @@ public class MainFrame extends JFrame {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					SwingUtilities.updateComponentTreeUI(MainFrame.this);
 					// save theme settings
-					new XMLFileManager("src/accounts.xml").changeLookAndFeel("system");
+					new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).changeLookAndFeel("system");
 				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 						| UnsupportedLookAndFeelException e1) {
 					e1.printStackTrace();
@@ -122,7 +122,7 @@ public class MainFrame extends JFrame {
 					UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 					SwingUtilities.updateComponentTreeUI(MainFrame.this);
 					// save theme settings
-					new XMLFileManager("src/accounts.xml").changeLookAndFeel("crossplatform");
+					new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).changeLookAndFeel("crossplatform");
 				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 						| UnsupportedLookAndFeelException e1) {
 					e1.printStackTrace();

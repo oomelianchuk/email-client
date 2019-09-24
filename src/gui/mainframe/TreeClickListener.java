@@ -82,7 +82,9 @@ class TreeClickListener extends MouseAdapter {
 				if (!path[path.length - 1].toString().equals(FrameManager.getLanguageProperty("node.compose"))) {
 					String userName = path[1].toString();
 					String folderName = path[2].toString();
-					MailFolder folder = new MailFolder("src/" + userName + "/" + folderName);
+					MailFolder folder = new MailFolder(FrameManager.getProgramSetting("pathToUserFolders")
+							.replaceAll("\\{userName\\}", userName)
+							.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", "")));
 					if (GlobalDataContainer.getAccountByName(userName).getFolderByName(folderName) != null
 							&& GlobalDataContainer.getAccountByName(userName).getFolderByName(folderName).getMessages()
 									.size()
@@ -144,8 +146,10 @@ class TreeClickListener extends MouseAdapter {
 			ConnectionManager connection = GlobalDataContainer.getConnectionByAccount(userName);
 			GlobalDataContainer.deleteConnection(connection);
 			GlobalDataContainer.addConnection(newUserName, connection);
-			new XMLFileManager("src/accounts.xml").renameAccount(userName, newUserName);
-			new File("src/" + userName).renameTo(new File("src/" + newUserName));
+			new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).renameAccount(userName,
+					newUserName);
+			new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName)).renameTo(
+					new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", newUserName)));
 		}
 	}
 
@@ -157,8 +161,7 @@ class TreeClickListener extends MouseAdapter {
 		if (newPassword != null) {
 			GlobalDataContainer.getAccountByName(userName).set("password", newPassword);
 		}
-		JOptionPane.showMessageDialog(FrameManager.mainFrame,
-				FrameManager.getLanguageProperty("popup.passwordChanged"),
+		JOptionPane.showMessageDialog(FrameManager.mainFrame, FrameManager.getLanguageProperty("popup.passwordChanged"),
 				FrameManager.getLanguageProperty("popup.title.passwordChanged"), JOptionPane.PLAIN_MESSAGE);
 	}
 }

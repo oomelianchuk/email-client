@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+import gui.FrameManager;
+
 public class LoggerConfigurator {
 	public void setUpLoggerForUser(String userName) {
-		File propertiesFile = new File("src/log4j2.properties");
+		File propertiesFile = new File(FrameManager.getProgramSetting("pathToLoggingSettings"));
 		BufferedWriter out;
 		try {
 			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(propertiesFile, true)));
@@ -23,7 +25,7 @@ public class LoggerConfigurator {
 	}
 
 	public void deleteLoggerForUser(String userName) {
-		File propertiesFile = new File("src/log4j2.properties");
+		File propertiesFile = new File(FrameManager.getProgramSetting("pathToLoggingSettings"));
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(propertiesFile)));
 			String text = "";

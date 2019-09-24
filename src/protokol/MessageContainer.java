@@ -95,7 +95,9 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 		} else {
 			messageXMLfolderName = Integer.toString(messageXMLfolderName.hashCode());
 		}
-		this.path = "src/" + userName + "/" + folderName + "/" + messageXMLfolderName;
+		this.path = FrameManager.getProgramSetting("pathToAccountSettings").replaceAll("\\{userName\\}", userName)
+				.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", "")) + "/"
+				+ messageXMLfolderName;
 		try {
 			Files.createDirectories(Paths.get(path));
 		} catch (IOException e) {
