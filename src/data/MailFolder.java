@@ -10,6 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
+import gui.FrameManager;
 import protokol.MessageContainer;
 
 public class MailFolder implements Serializable {
@@ -65,7 +68,10 @@ public class MailFolder implements Serializable {
 						in.close();
 					}
 				} catch (IOException | ClassNotFoundException e) {
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null,
+							FrameManager.getLanguageProperty("error.messageLoadFailedForFolder") + getName(),
+							FrameManager.getLanguageProperty("error.title.messageLoadFailedForFolder"),
+							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}

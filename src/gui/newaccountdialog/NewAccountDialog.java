@@ -25,7 +25,7 @@ import gui.FrameManager;
  * Dialog message to create new user
  */
 public class NewAccountDialog extends JFrame {
-	AbsenderDaten absenderDaten;
+	SenderData absenderDaten;
 	private JLabel errorMessage;
 	private JTextField userName;
 	private JTextField userPass;
@@ -39,10 +39,10 @@ public class NewAccountDialog extends JFrame {
 	private JCheckBox runInBackground;
 
 	public NewAccountDialog() {
-		super("Account Erstellen");
+		super(FrameManager.getLanguageProperty("newAccountDialog.title"));
 		JPanel contentPanel = new JPanel();
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-		absenderDaten = new AbsenderDaten();
+		absenderDaten = new SenderData();
 
 		// down part
 		JPanel contentDownPart = new JPanel();
@@ -63,7 +63,11 @@ public class NewAccountDialog extends JFrame {
 		contentDownPart.add(downPart);
 		JPanel labels = new JPanel();
 		labels.setLayout(new BoxLayout(labels, BoxLayout.Y_AXIS));
-		String[] labelNames = { "Benutzererkennung: ", "Passwort: ", "POP: ", "IMAP: ", "SMTP: " };
+		String[] labelNames = { FrameManager.getLanguageProperty("newAccountDialog.authentication"),
+				FrameManager.getLanguageProperty("newAccountDialog.password"),
+				FrameManager.getLanguageProperty("newAccountDialog.pop") + " :",
+				FrameManager.getLanguageProperty("newAccountDialog.imap") + " :",
+				FrameManager.getLanguageProperty("newAccountDialog.smtp") + " :" };
 		for (String labelName : labelNames) {
 			JLabel label = new JLabel(labelName);
 			label.setBorder(new EmptyBorder(0, 0, 20, 0));
@@ -108,26 +112,29 @@ public class NewAccountDialog extends JFrame {
 		downPart.add(restRight);
 		// check boxes panel
 		CheckBoxPanel checkBoxes = new CheckBoxPanel();
-		checkBoxes.addCheckBox("POP");
-		checkBoxes.addCheckBox("IMAP");
-		checkBoxes.addCheckBox("SMTP");
+		checkBoxes.addCheckBox(FrameManager.getLanguageProperty("newAccountDialog.pop"));
+		checkBoxes.addCheckBox(FrameManager.getLanguageProperty("newAccountDialog.imap"));
+		checkBoxes.addCheckBox(FrameManager.getLanguageProperty("newAccountDialog.smtp"));
 		// save pass panel
 		JPanel savePassPanel = new JPanel();
 		savePassPanel.setLayout(new BoxLayout(savePassPanel, BoxLayout.X_AXIS));
 		savePassPanel.setBorder(new EmptyBorder(0, 0, 20, 50));
-		savePass = new JCheckBox("Passwort speichern");
+		savePass = new JCheckBox(FrameManager.getLanguageProperty("newAccountDialog.savePassword"));
 		savePassPanel.add(savePass);
 		savePass.setBorder(new EmptyBorder(0, 0, 0, 20));
 
 		// ports
-		popPortPanel = new PortPanel("pop");
-		imapPortPanel = new PortPanel("imap");
-		smtpPortPanel = new PortPanel("smtp");
+		popPortPanel = new PortPanel(FrameManager.getLanguageProperty("newAccountDialog.pop"));
+		imapPortPanel = new PortPanel(FrameManager.getLanguageProperty("newAccountDialog.imap"));
+		smtpPortPanel = new PortPanel(FrameManager.getLanguageProperty("newAccountDialog.smtp"));
 
 		// Action on check boxes
-		checkBoxes.addEnableActionOnCheckBox("POP", popPortPanel.getPortTextField(), popServerPanel.getPopServer());
-		checkBoxes.addEnableActionOnCheckBox("IMAP", imapPortPanel.getPortTextField(), imapServerPanel.getPopServer());
-		checkBoxes.addEnableActionOnCheckBox("SMTP", smtpPortPanel.getPortTextField(), smtpServerPanel.getPopServer());
+		checkBoxes.addEnableActionOnCheckBox(FrameManager.getLanguageProperty("newAccountDialog.pop"),
+				popPortPanel.getPortTextField(), popServerPanel.getPopServer());
+		checkBoxes.addEnableActionOnCheckBox(FrameManager.getLanguageProperty("newAccountDialog.imap"),
+				imapPortPanel.getPortTextField(), imapServerPanel.getPopServer());
+		checkBoxes.addEnableActionOnCheckBox(FrameManager.getLanguageProperty("newAccountDialog.smtp"),
+				smtpPortPanel.getPortTextField(), smtpServerPanel.getPopServer());
 
 		restRight.add(checkBoxes);
 		restRight.add(savePassPanel);
@@ -136,7 +143,7 @@ public class NewAccountDialog extends JFrame {
 		restRight.add(smtpPortPanel);
 		JPanel confirmPanel = new JPanel();
 		confirmPanel.setLayout(new BoxLayout(confirmPanel, BoxLayout.X_AXIS));
-		JButton sendKeyes = new JButton("OK");
+		JButton sendKeyes = new JButton(FrameManager.getLanguageProperty("newAccountDialog.ok"));
 		sendKeyes.setMaximumSize(new Dimension(400, 30));
 		sendKeyes.setPreferredSize(new Dimension(400, 30));
 		sendKeyes.setMinimumSize(new Dimension(400, 30));
@@ -146,7 +153,7 @@ public class NewAccountDialog extends JFrame {
 				sendKeys();
 			}
 		});
-		runInBackground = new JCheckBox("check for messages in background");
+		runInBackground = new JCheckBox(FrameManager.getLanguageProperty("newAccountDialog.checkInBackground"));
 		runInBackground.setBorder(new EmptyBorder(0, 0, 0, 30));
 		confirmPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
 		confirmPanel.add(runInBackground);
@@ -170,9 +177,12 @@ public class NewAccountDialog extends JFrame {
 		popPort.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 		imapPort.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 		smtpPort.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-		boolean popEmpty = popServer.getText().equals("") | popServer.getText().equals("<domain>");
-		boolean imapEmpty = imapServer.getText().equals("") | imapServer.getText().equals("<domain>");
-		boolean smtpEmpty = smtpServer.getText().equals("") | smtpServer.getText().equals("<domain>");
+		boolean popEmpty = popServer.getText().equals("")
+				| popServer.getText().equals(FrameManager.getLanguageProperty("serverPanel.domain"));
+		boolean imapEmpty = imapServer.getText().equals("")
+				| imapServer.getText().equals(FrameManager.getLanguageProperty("serverPanel.domain"));
+		boolean smtpEmpty = smtpServer.getText().equals("")
+				| smtpServer.getText().equals(FrameManager.getLanguageProperty("serverPanel.domain"));
 		hideErrorMessage();
 		if (popEmpty & imapEmpty & smtpEmpty) {
 			popServer.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
@@ -181,10 +191,11 @@ public class NewAccountDialog extends JFrame {
 			popPort.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
 			imapPort.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
 			smtpPort.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
-			showErrorMessage("Geben Sie bitte Daten für zumidest einen Protokol");
-		} else if (!smtpEmpty & (smtpPort.getText().equals("") | smtpPort.getText().equals("<port>"))) {
+			showErrorMessage(FrameManager.getLanguageProperty("error.noProtocol"));
+		} else if (!smtpEmpty & (smtpPort.getText().equals("")
+				| smtpPort.getText().equals(FrameManager.getLanguageProperty("serverPanel.port")))) {
 			smtpPort.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
-			showErrorMessage("Geben Sie bitte Port für SMTP");
+			showErrorMessage(FrameManager.getLanguageProperty("error.noSmtpPort"));
 		} else {
 			AccountData accountDaten = absenderDaten.getAccountDaten();
 			if (accountDaten != null) {
@@ -193,7 +204,8 @@ public class NewAccountDialog extends JFrame {
 				accountDaten.setSavePass(savePass.isSelected());
 				if (!popEmpty) {
 					accountDaten.set("popServer", popServer.getText());
-					if (!(popPort.getText().equals("") | popPort.getText().equals("<port>"))) {
+					if (!(popPort.getText().equals("")
+							| popPort.getText().equals(FrameManager.getLanguageProperty("serverPanel.port")))) {
 						accountDaten.set("popPort", popPort.getText());
 						accountDaten.set("sslPop", Boolean.toString(popPortPanel.getPortSsl().isSelected()));
 						accountDaten.set("tlsPop", Boolean.toString(popPortPanel.getPortTls().isSelected()));
@@ -201,7 +213,8 @@ public class NewAccountDialog extends JFrame {
 				}
 				if (!imapEmpty) {
 					accountDaten.set("imapServer", imapServer.getText());
-					if (!(imapPort.getText().equals("") | imapPort.getText().equals("<port>"))) {
+					if (!(imapPort.getText().equals("")
+							| imapPort.getText().equals(FrameManager.getLanguageProperty("serverPanel.port")))) {
 						accountDaten.set("imapPort", imapPort.getText());
 						accountDaten.set("sslImap", Boolean.toString(imapPortPanel.getPortSsl().isSelected()));
 						accountDaten.set("tlsImap", Boolean.toString(imapPortPanel.getPortTls().isSelected()));

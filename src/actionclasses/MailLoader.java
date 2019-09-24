@@ -40,11 +40,11 @@ public class MailLoader implements BackgroundAction, Runnable {
 	 */
 	@Override
 	public void action(JProgressBar progressBar, JLabel label) {
-		FrameManager.logger.info("start loading messages after account creation");
-		label.setText("start downloading emails");
+		FrameManager.logger.info("start loading mail");
+		label.setText(FrameManager.getLanguageProperty("mailLoader.label.mailLoad"));
 		int folderValue = progressBar.getMaximum() / data.getFolders().size();
 		for (MailFolder folder : data.getFolders()) {
-			label.setText("start loading for folder " + folder.getName());
+			label.setText(FrameManager.getLanguageProperty("mailLoader.label.folderLoad") + folder.getName());
 			connectionManager.downloadMail(progressBar, folderValue, protocol, data.getUserName(), folder.getName(),
 					folder.getName().replaceAll("\\[", "").replaceAll("\\]", ""));
 
@@ -81,7 +81,7 @@ public class MailLoader implements BackgroundAction, Runnable {
 		}
 		if (newMessage) {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame,
-					"new emails for " + data.getUserName() + " are loaded", "new emails", JOptionPane.PLAIN_MESSAGE);
+					FrameManager.getLanguageProperty("popup.newMessage").replaceAll("\\{userName\\}", data.getUserName()), FrameManager.getLanguageProperty("popup.title.newMessage"), JOptionPane.PLAIN_MESSAGE);
 			data.setLastUpdateDate(new Date());
 			logger.info("new messages loaded");
 		}

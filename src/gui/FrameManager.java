@@ -4,11 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Properties;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -45,6 +48,13 @@ public class FrameManager {
 	private static HashMap<String, MailLoader> threads = new HashMap<String, MailLoader>();
 	private static boolean debug = false;
 	public static final Logger logger = LogManager.getLogger(FrameManager.class);
+	private final static Properties languageProperties = new Properties();
+	private static HashMap<String, Boolean> used = new HashMap<String, Boolean>();
+
+	public static String getLanguageProperty(String propertyName) {
+		used.put(propertyName, true);
+		return languageProperties.getProperty(propertyName);
+	}
 
 	public void showPopUP() {
 		popUP = new NewAccountDialog();
@@ -87,7 +97,7 @@ public class FrameManager {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame, "account " + userName + " deleted", "Account Deleted",
 					JOptionPane.PLAIN_MESSAGE);
 		} catch (IOException e1) {
-			JOptionPane.showMessageDialog(FrameManager.mainFrame, "Not possible to selete account, try later",
+			JOptionPane.showMessageDialog(FrameManager.mainFrame, "Not possible to delete account, try later",
 					"Account Delete Error", JOptionPane.ERROR_MESSAGE);
 			logger.error("while deleting account: " + e1.toString());
 		}
@@ -108,19 +118,19 @@ public class FrameManager {
 		if (popShould) {
 			popIs = connectionManager.checkPopConnection(data);
 			if (!popIs) {
-				popUP.showErrorMessage("POP Connection failed");
+				popUP.showErrorMessage(FrameManager.getLanguageProperty("error.popFailed"));
 			}
 		}
 		if ((popIs == popShould) & imapShould) {
 			imapIs = connectionManager.checkImapConnection(data);
 			if (!imapIs) {
-				popUP.showErrorMessage("IMAP Connection failed");
+				popUP.showErrorMessage(FrameManager.getLanguageProperty("error.imapFailed"));
 			}
 		}
 		if ((popIs == popShould) & (imapIs == imapShould) & smtpShould) {
 			smtpIs = connectionManager.checkSmtpConnection(data);
 			if (!smtpIs) {
-				popUP.showErrorMessage("SMTP Connection failed");
+				popUP.showErrorMessage(FrameManager.getLanguageProperty("error.smtpFailed"));
 			}
 		}
 		// if all wished connections are successful
@@ -187,8 +197,8 @@ public class FrameManager {
 			}
 			new LoggerConfigurator().setUpLoggerForUser(data.getUserName());
 			JOptionPane.showMessageDialog(FrameManager.mainFrame,
-					"account created, to make program deal with it properly, please restart the app", "Account Created",
-					JOptionPane.PLAIN_MESSAGE);
+					FrameManager.getLanguageProperty("popup.accountCreated"),
+					FrameManager.getLanguageProperty("popup.title.accountCreated"), JOptionPane.PLAIN_MESSAGE);
 		}
 
 	}
@@ -266,6 +276,19 @@ public class FrameManager {
 	}
 
 	public static void main(String[] args) {
+
+		try (InputStream input = new FileInputStream("src/en.properties")) {
+
+			// Properties prop = new Properties();
+
+			// load a properties file
+			// prop.load(input);
+			languageProperties.load(input);
+			languageProperties.keySet().forEach(property -> used.put(property.toString(), false));
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 		logger.info("programm start");
 		configureTheame();
 		mainFrame = new MainFrame();
@@ -310,6 +333,7 @@ public class FrameManager {
 						logger.info("xml rewrote");
 					}
 				}
+				System.out.println(used);
 				System.exit(0);
 			}
 		});

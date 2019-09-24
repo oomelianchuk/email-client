@@ -101,6 +101,7 @@ public class XMLFileManager {
 			return null;
 		}
 	}
+
 	/**
 	 * get name of preselected look and feel (yet only system or cross platform)
 	 * 
@@ -415,8 +416,8 @@ public class XMLFileManager {
 				accountDatenList.add(getAccountDataBy(nodeList.item(i).getTextContent()));
 			}
 		} catch (XPathExpressionException e) {
-			JOptionPane.showMessageDialog(FrameManager.mainFrame, "Error by data load", "Error by data load",
-					JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(FrameManager.mainFrame, FrameManager.getLanguageProperty("error.dataLoad"),
+					FrameManager.getLanguageProperty("error.title.dataLoad"), JOptionPane.ERROR_MESSAGE);
 			FrameManager.logger.error("error reading account data : " + e.toString());
 		}
 		return accountDatenList;

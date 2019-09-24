@@ -79,7 +79,7 @@ class TreeClickListener extends MouseAdapter {
 				DefaultMutableTreeNode folderNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 				TreeNode[] path = folderNode.getPath();
 				// if click was not on "compose" menu
-				if (!path[path.length - 1].toString().equals("Compose")) {
+				if (!path[path.length - 1].toString().equals(FrameManager.getLanguageProperty("node.compose"))) {
 					String userName = path[1].toString();
 					String folderName = path[2].toString();
 					MailFolder folder = new MailFolder("src/" + userName + "/" + folderName);
@@ -107,8 +107,7 @@ class TreeClickListener extends MouseAdapter {
 					}
 				} else {
 					OpenedMessagePanel oPanel = new OpenedMessagePanel(path[1].toString(),
-							GlobalDataContainer.getAccountByName(path[1].toString()).getEmail(), "",
-							"", "");
+							GlobalDataContainer.getAccountByName(path[1].toString()).getEmail(), "", "", "");
 					if (messagesPanel != null) {
 						messagesPanel.addOpenedMessagePanel(oPanel);
 					} else {
@@ -131,8 +130,9 @@ class TreeClickListener extends MouseAdapter {
 
 	private void renameUser() {
 		String userName = tree.getLastSelectedPathComponent().toString();
-		String newUserName = JOptionPane.showInputDialog(FrameManager.mainFrame, "enter new username",
-				"changing username", JOptionPane.QUESTION_MESSAGE);
+		String newUserName = JOptionPane.showInputDialog(FrameManager.mainFrame,
+				FrameManager.getLanguageProperty("renameUser.text"),
+				FrameManager.getLanguageProperty("renameUser.header"), JOptionPane.QUESTION_MESSAGE);
 		if (newUserName != null) {
 			((DefaultMutableTreeNode) tree.getLastSelectedPathComponent()).setUserObject(newUserName);
 			((DefaultTreeModel) tree.getModel())
@@ -151,13 +151,14 @@ class TreeClickListener extends MouseAdapter {
 
 	private void changePassword() {
 		String userName = tree.getLastSelectedPathComponent().toString();
-		String newPassword = JOptionPane.showInputDialog(FrameManager.mainFrame, "enter new password",
-				"changing password", JOptionPane.QUESTION_MESSAGE);
+		String newPassword = JOptionPane.showInputDialog(FrameManager.mainFrame,
+				FrameManager.getLanguageProperty("changePassword.text"),
+				FrameManager.getLanguageProperty("changePassword.header"), JOptionPane.QUESTION_MESSAGE);
 		if (newPassword != null) {
 			GlobalDataContainer.getAccountByName(userName).set("password", newPassword);
 		}
 		JOptionPane.showMessageDialog(FrameManager.mainFrame,
-				"Password changed, to make changes be used in program, restart it", "Password Changed",
-				JOptionPane.PLAIN_MESSAGE);
+				FrameManager.getLanguageProperty("popup.passwordChanged"),
+				FrameManager.getLanguageProperty("popup.title.passwordChanged"), JOptionPane.PLAIN_MESSAGE);
 	}
 }

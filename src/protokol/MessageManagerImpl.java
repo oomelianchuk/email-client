@@ -131,8 +131,9 @@ public class MessageManagerImpl implements MessageManager {
 			saveAttachmentFile(ourMessage[0], path, attachmentName);
 			folder.close();
 		} catch (MessagingException e) {
-			JOptionPane.showMessageDialog(FrameManager.mainFrame, "Attachment loading failed",
-					"Attachment loading failed", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(FrameManager.mainFrame,
+					FrameManager.getLanguageProperty("error.attachmentLoadingFailed"),
+					FrameManager.getLanguageProperty("error.title.attachmentLoadingFailed"), JOptionPane.ERROR_MESSAGE);
 			FrameManager.logger.error("opening/closing folder/finding message : " + e.toString());
 		}
 	}
@@ -160,9 +161,10 @@ public class MessageManagerImpl implements MessageManager {
 				}
 			}
 		} catch (IOException | MessagingException e) {
-			JOptionPane.showMessageDialog(FrameManager.mainFrame, "Error loading attachment",
-					"Error loading attachment", JOptionPane.ERROR_MESSAGE);
-			FrameManager.logger.error("while loading attachment : " + e.toString());
+			JOptionPane.showMessageDialog(FrameManager.mainFrame,
+					FrameManager.getLanguageProperty("error.attachmentLoadingFailed"),
+					FrameManager.getLanguageProperty("error.title.attachmentLoadingFailed"), JOptionPane.ERROR_MESSAGE);
+			FrameManager.logger.error("opening/closing folder/finding message : " + e.toString());
 		}
 	}
 

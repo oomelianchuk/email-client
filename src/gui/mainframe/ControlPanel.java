@@ -39,12 +39,12 @@ public class ControlPanel extends JPanel {
 		checkedMessages = new ArrayList<MessageRowPanel>();
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(new LineBorder(Color.BLACK));
-		refresh = new JButton("refresh");
+		refresh = new JButton(FrameManager.getLanguageProperty("messagesTopLine.refreshButtom"));
 		JPanel responseAndForward = new JPanel();
 		responseAndForward.setLayout(new BoxLayout(responseAndForward, BoxLayout.X_AXIS));
 
 		// response = new JButton("response");
-		forward = new JButton("forward");
+		forward = new JButton(FrameManager.getLanguageProperty("messagesTopLine.forwardButtom"));
 		forward.addActionListener(new ActionListener() {
 
 			@Override
@@ -52,7 +52,7 @@ public class ControlPanel extends JPanel {
 				checkedMessages.get(0).displayMessage(true);
 			}
 		});
-		delete = new JButton("delete");
+		delete = new JButton(FrameManager.getLanguageProperty("messagesTopLine.deleteButtom"));
 		delete.addActionListener(new ActionListener() {
 
 			@Override
@@ -62,14 +62,15 @@ public class ControlPanel extends JPanel {
 						messageRow.delete();
 					} catch (IOException e1) {
 						JOptionPane.showMessageDialog(FrameManager.mainFrame,
-								"Not possible to delete message now, try later", "Error Delete Message",
+								FrameManager.getLanguageProperty("error.deletingMessage"),
+								FrameManager.getLanguageProperty("error.title.deletingMessage"),
 								JOptionPane.ERROR_MESSAGE);
 						e1.printStackTrace();
 					}
 				}
 			}
 		});
-		move = new JButton("remove to");
+		move = new JButton(FrameManager.getLanguageProperty("messagesTopLine.moveButtom"));
 		move.setVisible(false);
 		this.add(refresh);
 		// this.add(response);

@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import gui.FrameManager;
+
 /**
  * This class represents labels for messages's short informations (message rows)
  */
@@ -29,15 +31,15 @@ public class MessagesTopLine extends JPanel {
 		checkAll.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		// subject label
-		JLabel subjectLabel = new JLabel("subject");
+		JLabel subjectLabel = new JLabel(FrameManager.getLanguageProperty("messagesTopLine.subject"));
 		subjectLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		// sender label
-		JLabel senderLabel = new JLabel("sender");
+		JLabel senderLabel = new JLabel(FrameManager.getLanguageProperty("messagesTopLine.sender"));
 		senderLabel.setBorder(new EmptyBorder(10, 165, 10, 415));
 
 		// date label
-		JLabel dateLabel = new JLabel("recieve date");
+		JLabel dateLabel = new JLabel(FrameManager.getLanguageProperty("messagesTopLine.date"));
 		dateLabel.setBorder(new EmptyBorder(10, 10, 10, 30));
 
 		// make message top line be always displayed till the end of the frame

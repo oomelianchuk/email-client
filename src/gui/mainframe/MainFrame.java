@@ -40,9 +40,9 @@ public class MainFrame extends JFrame {
 	private JSplitPane splitPane;
 
 	public MainFrame() {
-		super("E-Mail Client");
+		super(FrameManager.getLanguageProperty("header.emailClient"));
 		allPanels = new HashMap<String, Component>();
-		dm = new DefaultTreeModel(new DefaultMutableTreeNode("Accounts"));
+		dm = new DefaultTreeModel(new DefaultMutableTreeNode(FrameManager.getLanguageProperty("node.accounts")));
 		tree = new JTree(dm);
 		tree.addMouseListener(new TreeClickListener(tree, dm));
 
@@ -74,10 +74,10 @@ public class MainFrame extends JFrame {
 		menuBar.setBounds(0, 0, 434, 29);
 
 		// program settings
-		JMenu settingsMenu = new JMenu("Settings");
+		JMenu settingsMenu = new JMenu(FrameManager.getLanguageProperty("menu.settings"));
 		menuBar.add(settingsMenu);
 		// add new account button
-		JMenuItem newAccountMenu = new JMenuItem("New email account");
+		JMenuItem newAccountMenu = new JMenuItem(FrameManager.getLanguageProperty("menuItem.newAccount"));
 		settingsMenu.add(newAccountMenu);
 		newAccountMenu.addActionListener(new ActionListener() {
 
@@ -87,9 +87,9 @@ public class MainFrame extends JFrame {
 
 		});
 		// button to change look and feel
-		JMenu changeTheme = new JMenu("Change theme");
+		JMenu changeTheme = new JMenu(FrameManager.getLanguageProperty("menu.theme"));
 		settingsMenu.add(changeTheme);
-		JMenuItem systemTheme = new JMenuItem("System");
+		JMenuItem systemTheme = new JMenuItem(FrameManager.getLanguageProperty("menu.theme.system"));
 		changeTheme.add(systemTheme);
 		systemTheme.addActionListener(new ActionListener() {
 
@@ -104,12 +104,14 @@ public class MainFrame extends JFrame {
 				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 						| UnsupportedLookAndFeelException e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(FrameManager.mainFrame, "Unsupported/Uninstalled Theme",
-							"Unsupported/Uninstalled Theme", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(FrameManager.mainFrame,
+							FrameManager.getLanguageProperty("error.unsupportedTheme"),
+							FrameManager.getLanguageProperty("error.title.unsupportedTheme"),
+							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
-		JMenuItem crossplatformTheme = new JMenuItem("Cross platform");
+		JMenuItem crossplatformTheme = new JMenuItem(FrameManager.getLanguageProperty("menu.theme.cross"));
 		changeTheme.add(crossplatformTheme);
 		crossplatformTheme.addActionListener(new ActionListener() {
 
@@ -124,8 +126,10 @@ public class MainFrame extends JFrame {
 				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 						| UnsupportedLookAndFeelException e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(FrameManager.mainFrame, "Unsupported/Uninstalled Theme",
-							"Unsupported/Uninstalled Theme", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(FrameManager.mainFrame,
+							FrameManager.getLanguageProperty("error.unsupportedTheme"),
+							FrameManager.getLanguageProperty("error.title.unsupportedTheme"),
+							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -178,7 +182,7 @@ public class MainFrame extends JFrame {
 		// add new account node with all folders
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
 		DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(data.getUserName());
-		newChild.add(new DefaultMutableTreeNode("Compose"));
+		newChild.add(new DefaultMutableTreeNode(FrameManager.getLanguageProperty("node.compose")));
 		ArrayList<MailFolder> folders = data.getFolders();
 		if (folders != null) {
 			for (MailFolder folder : folders) {

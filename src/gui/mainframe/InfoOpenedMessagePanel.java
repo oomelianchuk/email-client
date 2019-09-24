@@ -10,6 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import gui.FrameManager;
+
 /**
  * Information part of OpenedMessagePanel. Here will be displayed fields for
  * subject, sender, recipient and date
@@ -25,7 +27,7 @@ public class InfoOpenedMessagePanel extends JPanel {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		JPanel subjectPanel = new JPanel();
 		subjectPanel.setLayout(new BoxLayout(subjectPanel, BoxLayout.X_AXIS));
-		JLabel subjectLabel = new JLabel("Subject:");
+		JLabel subjectLabel = new JLabel(FrameManager.getLanguageProperty("message.subject"));
 		subjectLabel.setPreferredSize(new Dimension(60, 20));
 		subjectLabel.setBorder(new EmptyBorder(0, 10, 5, 0));
 
@@ -38,7 +40,7 @@ public class InfoOpenedMessagePanel extends JPanel {
 		this.add(subjectPanel);
 		JPanel senderPanel = new JPanel();
 		senderPanel.setLayout(new BoxLayout(senderPanel, BoxLayout.X_AXIS));
-		JLabel senderLabel = new JLabel("From:");
+		JLabel senderLabel = new JLabel(FrameManager.getLanguageProperty("message.from"));
 		senderLabel.setPreferredSize(new Dimension(60, 20));
 		senderLabel.setBorder(new EmptyBorder(0, 10, 5, 0));
 		sender = new JTextField();
@@ -50,7 +52,7 @@ public class InfoOpenedMessagePanel extends JPanel {
 		this.add(senderPanel);
 		JPanel toPanel = new JPanel();
 		toPanel.setLayout(new BoxLayout(toPanel, BoxLayout.X_AXIS));
-		JLabel toLabel = new JLabel("To:");
+		JLabel toLabel = new JLabel(FrameManager.getLanguageProperty("message.to"));
 		toLabel.setPreferredSize(new Dimension(60, 20));
 		toLabel.setBorder(new EmptyBorder(0, 10, 5, 0));
 		to = new JTextField();

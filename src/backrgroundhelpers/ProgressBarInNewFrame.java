@@ -30,7 +30,7 @@ public class ProgressBarInNewFrame implements Runnable {
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
 		frame.setContentPane(contentPane);
-		label = new JLabel("not started yet");
+		label = new JLabel("");
 		progressBar = new JProgressBar();
 		progressBar.setMaximum(100);
 		progressBar.setMinimum(0);
@@ -64,13 +64,11 @@ public class ProgressBarInNewFrame implements Runnable {
 	}
 
 	protected void doInBackground() {
-		label.setText("in progress");
 		action.action(progressBar, label);
 		// return null;
 	}
 
 	protected void done() {
-		label.setText("done");
 		progressBar.setVisible(false);
 		label.setVisible(false);
 		frame.dispose();

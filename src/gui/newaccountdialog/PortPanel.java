@@ -14,6 +14,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import gui.FrameManager;
+
 /**
  * Panel for ports in NewAccountDialog
  */
@@ -29,16 +31,16 @@ public class PortPanel extends JPanel {
 		this.setBorder(new EmptyBorder(0, 0, 11, 90));
 		separator = new JLabel(":");
 		separator.setBorder(new EmptyBorder(0, 0, 0, 10));
-		portTextField = new JTextField("<port>");
+		portTextField = new JTextField(FrameManager.getLanguageProperty("serverPanel.port"));
 		portTextField.setHorizontalAlignment(SwingConstants.LEFT);
 		portTextField.setMaximumSize(new Dimension(45, 25));
 		portTextField.setPreferredSize(new Dimension(45, 25));
 		portTextField.setMinimumSize(new Dimension(45, 25));
 		portTextField.setEditable(false);
-		ssl = new JCheckBox("SSL");
+		ssl = new JCheckBox(FrameManager.getLanguageProperty("portPanel.ssl"));
 		ssl.setBorder(new EmptyBorder(0, 10, 0, 10));
 		ssl.setSelected(true);
-		tls = new JCheckBox("TLS");
+		tls = new JCheckBox(FrameManager.getLanguageProperty("portPanel.tls"));
 		tls.setBorder(new EmptyBorder(0, 0, 0, 10));
 		portTextField.addMouseListener(new MouseAdapter() {
 

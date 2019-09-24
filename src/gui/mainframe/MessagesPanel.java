@@ -47,8 +47,9 @@ public class MessagesPanel extends JPanel {
 						loadMessages();
 						FrameManager.mainFrame.setVisible(false);
 						FrameManager.mainFrame.setVisible(true);
-						JOptionPane.showMessageDialog(FrameManager.mainFrame, "Refershed", "Refeshed",
-								JOptionPane.PLAIN_MESSAGE);
+						JOptionPane.showMessageDialog(FrameManager.mainFrame,
+								FrameManager.getLanguageProperty("popup.refreshed"),
+								FrameManager.getLanguageProperty("popup.refreshed"), JOptionPane.PLAIN_MESSAGE);
 						return null;
 					}
 				}.execute();
@@ -143,15 +144,16 @@ public class MessagesPanel extends JPanel {
 		});
 		// ask user to choose to which folder does he/she want to remove message
 		String newFolder = (String) JOptionPane.showInputDialog(FrameManager.mainFrame,
-				"Select folder to move message to", "Message moving", JOptionPane.QUESTION_MESSAGE, null,
+				FrameManager.getLanguageProperty("popup.moveMessage"),
+				FrameManager.getLanguageProperty("popup.title.moveMessage"), JOptionPane.QUESTION_MESSAGE, null,
 				folders.toArray(), null);
 		// if user has chosen a folder move messages to it
 		if (newFolder != null) {
 			// delegate this operation to control panel
 			controlPanel.moveMessagesTo(newFolder);
 		}
-		JOptionPane.showMessageDialog(FrameManager.mainFrame, "your message moved", "Message moved",
-				JOptionPane.PLAIN_MESSAGE);
+		JOptionPane.showMessageDialog(FrameManager.mainFrame, FrameManager.getLanguageProperty("popup.messageMoved"),
+				FrameManager.getLanguageProperty("popup.title.messageMoved"), JOptionPane.PLAIN_MESSAGE);
 	}
 
 	public void loadMessages() {

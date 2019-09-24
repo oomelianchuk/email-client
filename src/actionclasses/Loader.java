@@ -38,7 +38,7 @@ public class Loader implements BackgroundAction {
 		FrameManager.logger.info("start loading accounts");
 		this.label = label;
 		this.progressBar = progressBar;
-		this.label.setText("configuring");
+		this.label.setText(FrameManager.getLanguageProperty("loader.label.configuring"));
 		// first get short information from xml file
 		XMLFileManager xml = new XMLFileManager("src/accounts.xml");
 		ArrayList<AccountData> accountDatas = (ArrayList<AccountData>) xml.getAccountDaten();
@@ -51,7 +51,8 @@ public class Loader implements BackgroundAction {
 			int valueOfProtocol = valueOfAccount / 3;
 			// for each account
 			for (AccountData data : accountDatas) {
-				FrameManager.logger.info("account " + data.getUserName() + " setup");
+				FrameManager.logger
+						.info(FrameManager.getLanguageProperty("loader.label.accountSetup") + data.getUserName());
 				boolean foldersChecked = false;
 				boolean mailChecked = false;
 				// check connections
@@ -61,7 +62,8 @@ public class Loader implements BackgroundAction {
 
 				// imap connection
 				if (data.getImapServer() != null) {
-					this.label.setText("check imap connection for " + data.getUserName() + "...");
+					this.label.setText(
+							FrameManager.getLanguageProperty("loader.label.checkImap") + data.getUserName() + "...");
 					boolean connectedImap = false;
 					// if password already in temporary program memory, we don't need to ask it
 					// again
@@ -78,29 +80,31 @@ public class Loader implements BackgroundAction {
 					// folders
 					if (connectedImap) {
 						// inform user that connection succeed
-						this.label.setText("imap connected");
+						this.label.setText(FrameManager.getLanguageProperty("loader.label.imapconnected"));
 						this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol / 3);
 
 						// start folders checking
-						this.label.setText("folders update for " + data.getUserName());
+						this.label.setText(
+								FrameManager.getLanguageProperty("loader.label.foldersUpdate") + data.getUserName());
 						updateFolders(data, connectionManager, "imap");
 						foldersChecked = true;
-						this.label.setText("folders updated");
+						this.label.setText(FrameManager.getLanguageProperty("loader.label.foldersUpdated"));
 
 						this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol / 3);
-						this.label.setText("checking for new mail...");
+						this.label.setText(FrameManager.getLanguageProperty("loader.label.checkForNewMail"));
 
 						// update mail
 						updateMail(data, connectionManager, "imap");
 						mailChecked = true;
 
-						this.label.setText("mail updated");
+						this.label.setText(FrameManager.getLanguageProperty("loader.label.mailChecked"));
 						this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol / 3);
 
 					} else {
 						// inform user that smtp connection failed
-						this.label.setText("imap connection failed");
-						JOptionPane.showMessageDialog(null, "Imap Connection failed", "Connetion faild",
+						this.label.setText(FrameManager.getLanguageProperty("error.imapFailed"));
+						JOptionPane.showMessageDialog(null, FrameManager.getLanguageProperty("error.imapFailed"),
+								FrameManager.getLanguageProperty("error.title.connectionFailed"),
 								JOptionPane.ERROR_MESSAGE);
 						this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol);
 					}
@@ -110,7 +114,8 @@ public class Loader implements BackgroundAction {
 					this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol);
 				}
 				if (data.getPopServer() != null) {
-					this.label.setText("check pop connection for " + data.getUserName() + "...");
+					this.label.setText(
+							FrameManager.getLanguageProperty("loader.label.checkPop") + data.getUserName() + "...");
 					boolean connectedPop = false;
 
 					// ask for password
@@ -122,28 +127,32 @@ public class Loader implements BackgroundAction {
 					}
 					// update data if not updated
 					if (connectedPop) {
-						this.label.setText("pop connected");
+						this.label.setText(FrameManager.getLanguageProperty("loader.label.popConnected"));
 						this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol / 3);
 
 						if (!foldersChecked) {
+							this.label.setText(FrameManager.getLanguageProperty("loader.label.foldersUpdated"));
 							updateFolders(data, connectionManager, "pop");
-							this.label.setText("folders updated");
 							this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol / 3);
+							this.label.setText(FrameManager.getLanguageProperty("loader.label.checkForNewMail"));
 						} else {
 							this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol / 3);
 						}
 						if (!mailChecked) {
-							this.label.setText("checking for mail update");
+							this.label.setText(FrameManager.getLanguageProperty("loader.label.checkForNewMail"));
+							// update mail
 							updateMail(data, connectionManager, "pop");
-							this.label.setText("mail updated");
+							mailChecked = true;
+							this.label.setText(FrameManager.getLanguageProperty("loader.label.mailChecked"));
 							this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol / 3);
 
 						} else {
 							this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol / 3);
 						}
 					} else {
-						this.label.setText("Pop connection failed");
-						JOptionPane.showMessageDialog(null, "Pop Connection failed", "Connetion faild",
+						this.label.setText(FrameManager.getLanguageProperty("error.popFailed"));
+						JOptionPane.showMessageDialog(null, FrameManager.getLanguageProperty("error.popFailed"),
+								FrameManager.getLanguageProperty("error.title.connectionFailed"),
 								JOptionPane.ERROR_MESSAGE);
 						this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol);
 					}
@@ -151,7 +160,7 @@ public class Loader implements BackgroundAction {
 					this.progressBar.setValue(this.progressBar.getValue() + valueOfAccount / 3);
 				}
 				if (data.getSmtpServer() != null) {
-					this.label.setText("checking smtp connection");
+					this.label.setText(FrameManager.getLanguageProperty("loader.label.checkSmtp") + data.getUserName());
 					boolean connectedSmtp = false;
 					if (!passwordSaved) {
 						askForPassword(data, connectionManager, "smtp");
@@ -161,9 +170,11 @@ public class Loader implements BackgroundAction {
 					}
 					if (connectedSmtp) {
 						this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol);
+						this.label.setText(FrameManager.getLanguageProperty("loader.label.smtpConnected"));
 					} else {
-						this.label.setText("smtp connection failed");
-						JOptionPane.showMessageDialog(null, "Smtp Connection failed", "Connetion faild",
+						this.label.setText(FrameManager.getLanguageProperty("error.smtpFailed"));
+						JOptionPane.showMessageDialog(null, FrameManager.getLanguageProperty("error.smtpFailed"),
+								FrameManager.getLanguageProperty("error.title.connectionFailed"),
 								JOptionPane.ERROR_MESSAGE);
 						this.progressBar.setValue(this.progressBar.getValue() + valueOfProtocol);
 					}
@@ -174,7 +185,6 @@ public class Loader implements BackgroundAction {
 				GlobalDataContainer.addAccount(data);
 				GlobalDataContainer.addConnection(data.getUserName(), connectionManager);
 				mainFrame.addNewAccount(data);
-				System.out.println(data.getFolderByName("INBOX").numberOfMessagesOnStart);
 				FrameManager.logger.info("configuration for account " + data.getUserName() + " finished");
 			}
 			this.progressBar.setValue(this.progressBar.getMaximum());
@@ -197,7 +207,7 @@ public class Loader implements BackgroundAction {
 
 			// if there are any folder in account, that are absent on server
 			if (!newFolders.contains(folderName)) {
-				FrameManager.logger.info(folderName + " doesn't exist and should be deleted");
+				FrameManager.logger.info(folderName + FrameManager.getLanguageProperty("loader.label.folderNotExist"));
 				this.label.setText(folderName + " doesn't exist and should be deleted");
 				// TODO: remove path pattern
 				String dir = "src/" + data.getUserName() + "/" + folderName.replaceAll("[", "").replaceAll("]", "");
@@ -228,7 +238,7 @@ public class Loader implements BackgroundAction {
 			// if folder is absent in account, add it
 			if (!data.hasFolder(folder)) {
 				FrameManager.logger.info(folder + "  was apsent and should be created");
-				this.label.setText(folder + " was apsent and should be created");
+				this.label.setText(folder + FrameManager.getLanguageProperty("loader.label.folderCreate"));
 				// and load all messages for this folder
 				ArrayList<MessageContainer> messages = connectionManager.downloadMail(new JProgressBar(), 0, protocol,
 						data.getUserName(), folder, folder.replaceAll("\\[", "").replaceAll("\\]", ""));
@@ -239,7 +249,7 @@ public class Loader implements BackgroundAction {
 
 	private void updateMail(AccountData data, ConnectionManager connectionManager, String protocol) {
 		for (String folderName : data.getFolderNames()) {
-			//TODO: pass real logger
+			// TODO: pass real logger
 			data.addFolder(new MailFolder(data.getUserName(), folderName, connectionManager
 					.downloadMailAfterDate(protocol, data.getUserName(), folderName, data.getLastUpdateData(), null)));
 

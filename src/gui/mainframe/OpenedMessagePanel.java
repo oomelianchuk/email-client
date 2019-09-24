@@ -62,7 +62,8 @@ public class OpenedMessagePanel extends JPanel {
 			info.setSender(message.getFrom());
 			info.setTo(message.getTo());
 			info.setSubject(message.getSubject());
-			info.setDate(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(message.getReceivedDate()));
+			info.setDate(new SimpleDateFormat(FrameManager.getLanguageProperty("dateFormat"))
+					.format(message.getReceivedDate()));
 		}
 
 		// used for forwarding
@@ -112,9 +113,9 @@ public class OpenedMessagePanel extends JPanel {
 		showHTMLButton = new JButton();
 		showHTMLButton.setMaximumSize(new Dimension(150, 60));
 		showHTMLButton.setLayout(new BorderLayout());
-		JLabel northHtml = new JLabel("This message has");
-		JLabel centerHtml = new JLabel("html view");
-		JLabel southHtml = new JLabel("Show it!");
+		JLabel northHtml = new JLabel(FrameManager.getLanguageProperty("message.showHtmlButton.north"));
+		JLabel centerHtml = new JLabel(FrameManager.getLanguageProperty("message.showHtmlButton.center"));
+		JLabel southHtml = new JLabel(FrameManager.getLanguageProperty("message.showHtmlButton.south"));
 
 		showHTMLButton.add(BorderLayout.NORTH, northHtml);
 		showHTMLButton.add(BorderLayout.CENTER, centerHtml);
@@ -146,9 +147,9 @@ public class OpenedMessagePanel extends JPanel {
 		JButton showAttachmentButton = new JButton();
 		showAttachmentButton.setMaximumSize(new Dimension(150, 60));
 		showAttachmentButton.setLayout(new BorderLayout());
-		JLabel northAttach = new JLabel("This message has");
-		JLabel centerAttach = new JLabel("attachment");
-		JLabel southAttach = new JLabel("Show it!");
+		JLabel northAttach = new JLabel(FrameManager.getLanguageProperty("message.showAttachmentButton.north"));
+		JLabel centerAttach = new JLabel(FrameManager.getLanguageProperty("message.showAttachmentButton.center"));
+		JLabel southAttach = new JLabel(FrameManager.getLanguageProperty("message.showAttachmentButton.south"));
 
 		showAttachmentButton.add(BorderLayout.NORTH, northAttach);
 		showAttachmentButton.add(BorderLayout.CENTER, centerAttach);
@@ -179,8 +180,8 @@ public class OpenedMessagePanel extends JPanel {
 		JPanel infoForwardingPanel = new JPanel();
 		infoForwardingPanel.setBorder(new EmptyBorder(10, 10, 10, 60));
 		infoForwardingPanel.setLayout(new BoxLayout(infoForwardingPanel, BoxLayout.Y_AXIS));
-		JLabel infoForwarding1 = new JLabel("your message is attached");
-		JLabel infoForwarding2 = new JLabel("please write your comments below");
+		JLabel infoForwarding1 = new JLabel(FrameManager.getLanguageProperty("messages.forwarding.messageAttached"));
+		JLabel infoForwarding2 = new JLabel(FrameManager.getLanguageProperty("messages.forwarding.writeCommentsBelow"));
 		infoForwardingPanel.add(infoForwarding1);
 		infoForwardingPanel.add(infoForwarding2);
 		forwardPanel.add(infoForwardingPanel, BorderLayout.WEST);
@@ -189,7 +190,7 @@ public class OpenedMessagePanel extends JPanel {
 		attach = new JPanel();
 		attach.setLayout(new BoxLayout(attach, BoxLayout.X_AXIS));
 		attach.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JButton addAttachmenttButton = new JButton("Add attachment");
+		JButton addAttachmenttButton = new JButton(FrameManager.getLanguageProperty("messages.addAttachment"));
 		addAttachmenttButton.setMaximumSize(new Dimension(150, 60));
 		addAttachmenttButton.setLayout(new BorderLayout());
 		addAttachmenttButton.addActionListener(new ActionListener() {
@@ -203,7 +204,7 @@ public class OpenedMessagePanel extends JPanel {
 		forwardPanel.add(attach);
 
 		// send buttom
-		JButton sendButton = new JButton("Send");
+		JButton sendButton = new JButton(FrameManager.getLanguageProperty("messages.send"));
 		sendButton.setMaximumSize(new Dimension(100, 60));
 		forwardPanel.add(sendButton, BorderLayout.EAST);
 		sendButton.addActionListener(new ActionListener() {
@@ -220,7 +221,9 @@ public class OpenedMessagePanel extends JPanel {
 							GlobalDataContainer.getConnectionByAccount(message.getAccountName()).forward(message,
 									commentMessage, messageText.getText());
 							// after message is send - info message "sent"
-							JOptionPane.showMessageDialog(FrameManager.mainFrame, "your message sent", "Message sent",
+							JOptionPane.showMessageDialog(FrameManager.mainFrame,
+									FrameManager.getLanguageProperty("popup.messageSent"),
+									FrameManager.getLanguageProperty("popup.title.messageSent"),
 									JOptionPane.PLAIN_MESSAGE);
 							// hide opened message panel
 							OpenedMessagePanel.this.setVisible(false);
@@ -238,7 +241,7 @@ public class OpenedMessagePanel extends JPanel {
 		JPanel replyPanel = new JPanel();
 		replyPanel.setLayout(new BoxLayout(replyPanel, BoxLayout.X_AXIS));
 		replyPanel.setBorder(new EmptyBorder(10, 10, 10, 60));
-		replyButton = new JButton("Reply");
+		replyButton = new JButton(FrameManager.getLanguageProperty("messages.reply"));
 		replyButton.setMaximumSize(new Dimension(100, 60));
 		replyPanel.add(replyButton);
 		attachAndHtml.add(replyPanel, BorderLayout.EAST);
@@ -266,7 +269,7 @@ public class OpenedMessagePanel extends JPanel {
 		attach.setLayout(new BoxLayout(attach, BoxLayout.X_AXIS));
 		attach.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-		JButton addAttachmenttButton = new JButton("Add attachment");
+		JButton addAttachmenttButton = new JButton(FrameManager.getLanguageProperty("messages.addAttachment"));
 		addAttachmenttButton.setMaximumSize(new Dimension(150, 60));
 		addAttachmenttButton.setLayout(new BorderLayout());
 		addAttachmenttButton.addActionListener(new ActionListener() {
@@ -281,7 +284,7 @@ public class OpenedMessagePanel extends JPanel {
 		JPanel sendPanel = new JPanel();
 		sendPanel.setLayout(new BorderLayout());
 		sendPanel.setBorder(new EmptyBorder(10, 10, 10, 60));
-		JButton sendButton = new JButton("Send");
+		JButton sendButton = new JButton(FrameManager.getLanguageProperty("messages.send"));
 		sendButton.setMaximumSize(new Dimension(100, 60));
 		sendPanel.add(sendButton, BorderLayout.EAST);
 		sendButton.addActionListener(new ActionListener() {
@@ -293,15 +296,17 @@ public class OpenedMessagePanel extends JPanel {
 					message.setTo(info.getTo().trim());
 					message.setSubject(info.getSubject());
 					GlobalDataContainer.getConnectionByAccount(userName).send(message, messageText.getText());
-					JOptionPane.showMessageDialog(FrameManager.mainFrame, "your message sent", "Message sent",
-							JOptionPane.PLAIN_MESSAGE);
+					JOptionPane.showMessageDialog(FrameManager.mainFrame,
+							FrameManager.getLanguageProperty("popup.messageSent"),
+							FrameManager.getLanguageProperty("popup.title.messageSent"), JOptionPane.PLAIN_MESSAGE);
 					OpenedMessagePanel.this.setVisible(false);
 				}
 			}
 		});
 		attachAndSend.add(sendPanel, BorderLayout.CENTER);
 		info.add(attachAndSend);
-		messageText = new JTextArea(text.equals("") ? "" : "Quote: " + text);
+		messageText = new JTextArea(
+				text.equals("") ? "" : FrameManager.getLanguageProperty("messages.forwarding.quote") + text);
 		messageText.setFont(new Font("TimesRoman", Font.PLAIN, 14));
 		JScrollPane scrollMessage = new JScrollPane(messageText);
 		messageText.setBorder(new CompoundBorder(new LineBorder(Color.GRAY), new EmptyBorder(10, 10, 10, 10)));
@@ -326,7 +331,7 @@ public class OpenedMessagePanel extends JPanel {
 			attachmentPanel.setBorder(new EmptyBorder(10, 50, 10, 10));
 			JLabel attachment = new JLabel(fc.getSelectedFile().getAbsolutePath());
 			attachment.setBorder(new EmptyBorder(0, 10, 0, 10));
-			JButton remove = new JButton("remove");
+			JButton remove = new JButton(FrameManager.getLanguageProperty("messages.remove"));
 			remove.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -374,7 +379,7 @@ public class OpenedMessagePanel extends JPanel {
 			JPanel back = new JPanel();
 			back.setLayout(new BoxLayout(back, BoxLayout.X_AXIS));
 			back.setBorder(new EmptyBorder(10, 10, 10, 10));
-			JButton backButton = new JButton("Back to text");
+			JButton backButton = new JButton(FrameManager.getLanguageProperty("messages.backToText"));
 			back.add(backButton);
 			attachAndHtml.add(back, BorderLayout.CENTER);
 			backButton.addActionListener(new ActionListener() {
@@ -406,11 +411,10 @@ public class OpenedMessagePanel extends JPanel {
 			String userName = message.getAccountName();
 			String folderName = message.getFolderName();
 
-			
 			JLabel attachment = new JLabel(fileName);
 			attachment.setBorder(new EmptyBorder(0, 0, 0, 10));
 			attachmentPanel.add(attachment);
-			JButton download = new JButton("download");
+			JButton download = new JButton(FrameManager.getLanguageProperty("messages.attachment.download"));
 			download.addActionListener(new ActionListener() {
 
 				@Override
@@ -430,7 +434,8 @@ public class OpenedMessagePanel extends JPanel {
 							}
 
 							protected void done() {
-								JOptionPane.showMessageDialog(null, "your file saved", "saving file",
+								JOptionPane.showMessageDialog(null, FrameManager.getLanguageProperty("popup.fileSaved"),
+										FrameManager.getLanguageProperty("popup.title.fileSaved"),
 										JOptionPane.PLAIN_MESSAGE);
 							}
 						}.execute();
@@ -448,7 +453,8 @@ public class OpenedMessagePanel extends JPanel {
 
 	private boolean validateMatch(String email) {
 		if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}+(;\\s?[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4})*$")) {
-			JOptionPane.showMessageDialog(null, "no valid email", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, FrameManager.getLanguageProperty("popup.invalidEmail"),
+					FrameManager.getLanguageProperty("popup.title.invalidEmail"), JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;

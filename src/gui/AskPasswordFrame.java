@@ -18,9 +18,9 @@ public class AskPasswordFrame extends JFrame {
 	private boolean savePass = false;
 
 	public AskPasswordFrame(String userName) {
-		super("Password dialog");
+		super(FrameManager.getLanguageProperty("header.passwordDialog"));
 		JPanel contentPane = new JPanel();
-		JLabel label = new JLabel("please enter your password for " + userName);
+		JLabel label = new JLabel(FrameManager.getLanguageProperty("passwordDialog.text") + userName);
 		label.setBorder(new EmptyBorder(10, 10, 10, 10));
 		JPanel labelPanel = new JPanel();
 		labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.X_AXIS));
@@ -32,12 +32,13 @@ public class AskPasswordFrame extends JFrame {
 		JPanel passwordPanel = new JPanel();
 		passwordPanel.setLayout(new BoxLayout(passwordPanel, BoxLayout.X_AXIS));
 		passwordPanel.add(passwordField);
-		JButton ok = new JButton("Submit");
+		JButton ok = new JButton(FrameManager.getLanguageProperty("passwordDialog.submitButtom"));
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		buttonPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		buttonPanel.add(ok);
-		JCheckBox savePassCheckbox = new JCheckBox("save password");
+		JCheckBox savePassCheckbox = new JCheckBox(
+				FrameManager.getLanguageProperty("passwordDialog.savePasswordCheckbox"));
 		ok.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

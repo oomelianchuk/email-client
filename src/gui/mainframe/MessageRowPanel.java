@@ -49,7 +49,7 @@ public class MessageRowPanel extends JPanel {
 		this.message = message;
 		String subject = message.getSubject();
 		String sender = message.getFrom();
-		DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+		DateFormat format = new SimpleDateFormat(FrameManager.getLanguageProperty("dateFormat"));
 		String recieveDate = format.format(message.getReceivedDate());
 		if (message.isSeen()) {
 			currentColor = SEEN_MESSAGE_COLOR;
@@ -149,8 +149,6 @@ public class MessageRowPanel extends JPanel {
 		checked.setSelected(true);
 
 		// get user email
-		AccountData accountToCompare = new AccountData();
-		accountToCompare.set("userName", message.getAccountName());
 		String userEmail =GlobalDataContainer.getAccountByName(message.getAccountName()).getEmail();
 
 		// get all email on which the original message was sent and set them as

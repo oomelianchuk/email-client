@@ -31,13 +31,11 @@ public class ProgressBarInMainFrame extends SwingWorker<Void, Void> {
 	}
 
 	protected Void doInBackground() {
-		label.setText("in progress");
 		action.action(progressBar, label);
 		return null;
 	}
 
 	protected void done() {
-		label.setText("done");
 		progressBar.setVisible(false);
 		label.setVisible(false);
 	}

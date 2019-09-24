@@ -12,12 +12,12 @@ public class ProgressBarFrame extends JFrame {
 	private JProgressBar progressBar;
 
 	public ProgressBarFrame() {
-		super("Progress Terminated");
+		super(FrameManager.getLanguageProperty("header.progressTerminated"));
 		JPanel contentPane = new JPanel();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
 		this.setContentPane(contentPane);
-		label = new JLabel("not started yet");
+		label = new JLabel(FrameManager.getLanguageProperty("progressBar.label.notStated"));
 		progressBar = new JProgressBar();
 		progressBar.setMaximum(100);
 		progressBar.setMinimum(0);
