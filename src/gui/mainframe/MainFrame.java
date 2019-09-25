@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -95,21 +96,9 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					// change look and feel
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					SwingUtilities.updateComponentTreeUI(MainFrame.this);
-					// save theme settings
-					new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).changeLookAndFeel("system");
-				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-						| UnsupportedLookAndFeelException e1) {
-					e1.printStackTrace();
-					JOptionPane.showMessageDialog(FrameManager.mainFrame,
-							FrameManager.getLanguageProperty("error.unsupportedTheme"),
-							FrameManager.getLanguageProperty("error.title.unsupportedTheme"),
-							JOptionPane.ERROR_MESSAGE);
-				}
+				changeTheme(UIManager.getSystemLookAndFeelClassName());
 			}
+
 		});
 		JMenuItem crossplatformTheme = new JMenuItem(FrameManager.getLanguageProperty("menu.theme.cross"));
 		changeTheme.add(crossplatformTheme);
@@ -117,20 +106,7 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					// change look and feel
-					UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-					SwingUtilities.updateComponentTreeUI(MainFrame.this);
-					// save theme settings
-					new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).changeLookAndFeel("crossplatform");
-				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-						| UnsupportedLookAndFeelException e1) {
-					e1.printStackTrace();
-					JOptionPane.showMessageDialog(FrameManager.mainFrame,
-							FrameManager.getLanguageProperty("error.unsupportedTheme"),
-							FrameManager.getLanguageProperty("error.title.unsupportedTheme"),
-							JOptionPane.ERROR_MESSAGE);
-				}
+				changeTheme(UIManager.getCrossPlatformLookAndFeelClassName());
 			}
 		});
 		contentPane.add(menuBar, BorderLayout.NORTH);
@@ -184,16 +160,32 @@ public class MainFrame extends JFrame {
 		DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(data.getUserName());
 		newChild.add(new DefaultMutableTreeNode(FrameManager.getLanguageProperty("node.compose")));
 		ArrayList<MailFolder> folders = data.getFolders();
-		if (folders.get(0)!= null) {
+		if (folders.get(0) != null) {
 			for (MailFolder folder : folders) {
 				newChild.add(new DefaultMutableTreeNode(folder.getName()));
 			}
-		}else {
-			for(String folderName:data.getFolderNames()) {
+		} else {
+			for (String folderName : data.getFolderNames()) {
 				newChild.add(new DefaultMutableTreeNode(folderName));
 			}
 		}
 		dm.insertNodeInto(newChild, root, root.getChildCount());
 		tree.expandPath(new TreePath(dm.getPathToRoot(newChild.getParent())));
+	}
+
+	private void changeTheme(String lookAndFeel) {
+		try {
+			// change look and feel
+			UIManager.setLookAndFeel(lookAndFeel);
+			SwingUtilities.updateComponentTreeUI(MainFrame.this);
+			// save theme settings
+			new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"))
+					.changeLookAndFeel(lookAndFeel);
+		} catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException e1) {
+			e1.printStackTrace();
+			JOptionPane.showMessageDialog(FrameManager.mainFrame,
+					FrameManager.getLanguageProperty("error.unsupportedTheme"),
+					FrameManager.getLanguageProperty("error.title.unsupportedTheme"), JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }

@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
@@ -70,8 +71,8 @@ public class XMLFileManager {
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path, false)));
 			out.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
 			out.write("<Properties>\n");
-			out.write("<Skin>cross-platform</Skin>\n");
-			out.write("<Accounts>cross-platform</Accounts>\n");
+			out.write("<Skin>"+UIManager.getCrossPlatformLookAndFeelClassName()+"</Skin>\n");
+			out.write("<Accounts></Accounts>\n");
 			out.write("</Properties>\n");
 			out.close();
 		} catch (IOException e) {
@@ -116,7 +117,7 @@ public class XMLFileManager {
 		} catch (XPathExpressionException e) {
 			FrameManager.LOGGER.error("look and feel selection not found : " + e.toString());
 		}
-		return "crossplatform";
+		return UIManager.getCrossPlatformLookAndFeelClassName();
 	}
 
 	/**

@@ -240,26 +240,15 @@ public class FrameManager {
 
 	private static void configureTheame() {
 		// read theme settings and set selected theme
-		if (new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).getLookAndFeel()
-				.equals("system")) {
+		String theme =new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).getLookAndFeel();
 			try {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				LOGGER.info("system look and feel set");
+				UIManager.setLookAndFeel(theme);
+				LOGGER.info(theme+" look and feel set");
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 					| UnsupportedLookAndFeelException e1) {
 				e1.printStackTrace();
-				LOGGER.error("while setting system look and feel: " + e1.toString());
+				LOGGER.error("while setting "+theme+" look and feel: " + e1.toString());
 			}
-		} else {
-			try {
-				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-				LOGGER.info("cross-platform look and feel set");
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-					| UnsupportedLookAndFeelException e1) {
-				e1.printStackTrace();
-				LOGGER.error("while setting cross-platform look and feel: " + e1.toString());
-			}
-		}
 	}
 
 	public static void loadAccounts() {
