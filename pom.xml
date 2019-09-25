@@ -46,8 +46,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.11.2</version>
+			<artifactId>log4j-core</artifactId>
+			<version>2.12.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -55,10 +55,10 @@
 			<version>2.11.2</version>
 		</dependency>
 		<dependency>
-    <groupId>com.googlecode.juniversalchardet</groupId>
-    <artifactId>juniversalchardet</artifactId>
-    <version>1.0.3</version>
-</dependency>
+			<groupId>com.googlecode.juniversalchardet</groupId>
+			<artifactId>juniversalchardet</artifactId>
+			<version>1.0.3</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
