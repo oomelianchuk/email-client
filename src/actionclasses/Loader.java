@@ -35,14 +35,14 @@ public class Loader implements BackgroundAction {
 	}
 
 	public void action(JProgressBar progressBar, JLabel label) {
-		FrameManager.logger.info("start loading accounts");
+		FrameManager.LOGGER.info("start loading accounts");
 		this.label = label;
 		this.progressBar = progressBar;
 		this.label.setText(FrameManager.getLanguageProperty("loader.label.configuring"));
 		// first get short information from xml file
 		XMLFileManager xml = new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"));
 		ArrayList<AccountData> accountDatas = (ArrayList<AccountData>) xml.getAccountDaten();
-		FrameManager.logger.info("data has been read");
+		FrameManager.LOGGER.info("data has been read");
 		// than, if there are some account
 		if (accountDatas.size() > 0) {
 			ConnectionManager connectionManager;
@@ -51,14 +51,14 @@ public class Loader implements BackgroundAction {
 			int valueOfProtocol = valueOfAccount / 3;
 			// for each account
 			for (AccountData data : accountDatas) {
-				FrameManager.logger
+				FrameManager.LOGGER
 						.info(FrameManager.getLanguageProperty("loader.label.accountSetup") + data.getUserName());
 				boolean foldersChecked = false;
 				boolean mailChecked = false;
 				// check connections
 				connectionManager = new ConnectionManager(data);
 				boolean passwordSaved = data.getPassword() != null;
-				FrameManager.logger.info("password saved " + passwordSaved);
+				FrameManager.LOGGER.info("password saved " + passwordSaved);
 
 				// imap connection
 				if (data.getImapServer() != null) {
@@ -187,7 +187,7 @@ public class Loader implements BackgroundAction {
 					GlobalDataContainer.addConnection(data.getUserName(), connectionManager);
 				}
 				mainFrame.addNewAccount(data);
-				FrameManager.logger.info("configuration for account " + data.getUserName() + " finished");
+				FrameManager.LOGGER.info("configuration for account " + data.getUserName() + " finished");
 			}
 			this.progressBar.setValue(this.progressBar.getMaximum());
 		}
@@ -195,7 +195,7 @@ public class Loader implements BackgroundAction {
 	}
 
 	private void updateFolders(AccountData data, ConnectionManager connectionManager, String protocol) {
-		FrameManager.logger.info("update folders");
+		FrameManager.LOGGER.info("update folders");
 		// load folders from server
 		ArrayList<String> newFolders = connectionManager.getFolderNames(protocol, data);
 		if (data.getFolders() == null) {
@@ -209,7 +209,7 @@ public class Loader implements BackgroundAction {
 
 			// if there are any folder in account, that are absent on server
 			if (!newFolders.contains(folderName)) {
-				FrameManager.logger.info(folderName + FrameManager.getLanguageProperty("loader.label.folderNotExist"));
+				FrameManager.LOGGER.info(folderName + FrameManager.getLanguageProperty("loader.label.folderNotExist"));
 				this.label.setText(folderName + " doesn't exist and should be deleted");
 				// TODO: remove path pattern
 				String dir = FrameManager.getProgramSetting("pathToUserFolders")
@@ -218,11 +218,11 @@ public class Loader implements BackgroundAction {
 				// delete this folder with all mail
 				try {
 					if (new File(dir).exists()) {
-						FrameManager.logger.info("delete " + dir);
+						FrameManager.LOGGER.info("delete " + dir);
 						FileUtils.deleteDirectory(new File(dir));
 					}
 				} catch (IOException e) {
-					FrameManager.logger.error("deleting directory : " + e.toString());
+					FrameManager.LOGGER.error("deleting directory : " + e.toString());
 					e.printStackTrace();
 				}
 			}
@@ -241,7 +241,7 @@ public class Loader implements BackgroundAction {
 
 			// if folder is absent in account, add it
 			if (!data.hasFolder(folder)) {
-				FrameManager.logger.info(folder + "  was apsent and should be created");
+				FrameManager.LOGGER.info(folder + "  was apsent and should be created");
 				this.label.setText(folder + FrameManager.getLanguageProperty("loader.label.folderCreate"));
 				// and load all messages for this folder
 				ArrayList<MessageContainer> messages = connectionManager.downloadMail(new JProgressBar(), 0, protocol,
@@ -261,7 +261,7 @@ public class Loader implements BackgroundAction {
 	}
 
 	private void askForPassword(AccountData data, ConnectionManager connectionManager, String protocol) {
-		FrameManager.logger.info("ask for password");
+		FrameManager.LOGGER.info("ask for password");
 		// if password not saved, ask for it
 		AskPasswordFrame passwordFrame = new AskPasswordFrame(data.getUserName());
 		String password = null;

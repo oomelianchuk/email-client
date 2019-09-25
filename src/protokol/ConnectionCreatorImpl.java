@@ -36,7 +36,7 @@ public class ConnectionCreatorImpl implements ConnectionCreator {
 		String password = data.get("password");
 		String ssl = data.get("ssl" + protocolKeyWord.substring(0, 1).toUpperCase() + protocolKeyWord.substring(1));
 		String tls = data.get("tls" + protocolKeyWord.substring(0, 1).toUpperCase() + protocolKeyWord.substring(1));
-		FrameManager.logger.info(
+		FrameManager.LOGGER.info(
 				protocolKeyWord + " " + protocolKeyWord.substring(0, 1).toUpperCase() + protocolKeyWord.substring(1));
 		// configure properties
 		Properties props = new Properties();
@@ -51,12 +51,12 @@ public class ConnectionCreatorImpl implements ConnectionCreator {
 		Store store;
 		try {
 			store = session.getStore(protokol);
-			FrameManager.logger.info(
+			FrameManager.LOGGER.info(
 					"staring " + protokol + " connection for " + data.getUserName() + " port " + port + " ssl " + ssl);
 			store.connect(host, userAuth, password);
-			FrameManager.logger.info(protokol + " connected for " + data.getUserName());
+			FrameManager.LOGGER.info(protokol + " connected for " + data.getUserName());
 		} catch (Exception e) {
-			FrameManager.logger
+			FrameManager.LOGGER
 					.error(protokol + " connection failed for " + data.getUserName() + " : " + e.getMessage());
 			return null;
 		}
@@ -99,14 +99,14 @@ public class ConnectionCreatorImpl implements ConnectionCreator {
 		SmtpAuthenticator smtpAuthenticator = new SmtpAuthenticator(userAuth, password);
 		Session session = Session.getInstance(smtpProps, smtpAuthenticator);
 		try {
-			FrameManager.logger.info("staring smtp connection for " + data.getUserName());
+			FrameManager.LOGGER.info("staring smtp connection for " + data.getUserName());
 			session.getTransport().close();
-			FrameManager.logger.info("smtp connected for " + data.getUserName());
+			FrameManager.LOGGER.info("smtp connected for " + data.getUserName());
 			return session;
 		} catch (MessagingException e) {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame, FrameManager.getLanguageProperty("error.smtpFailed"),
 					FrameManager.getLanguageProperty("error.title.connectionFailed"), JOptionPane.ERROR_MESSAGE);
-			FrameManager.logger.error("smtp connection failed for " + data.getUserName() + " : " + e.toString());
+			FrameManager.LOGGER.error("smtp connection failed for " + data.getUserName() + " : " + e.toString());
 			e.printStackTrace();
 			return null;
 		}

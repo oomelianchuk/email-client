@@ -55,7 +55,7 @@ public class XMLFileManager {
 			this.path = path;
 			File newFile = new File(path);
 			boolean created = newFile.createNewFile();
-			FrameManager.logger.info("xml file created " + created);
+			FrameManager.LOGGER.info("xml file created " + created);
 			if (created) {
 				createDocument(path);
 			}
@@ -88,7 +88,7 @@ public class XMLFileManager {
 	 * @return data of last update for the account in string form
 	 */
 	public String getLastAttendanceDateForAccount(String userName) {
-		FrameManager.logger.info("reading last attendance date");
+		FrameManager.LOGGER.info("reading last attendance date");
 		XPathFactory pathFactory = XPathFactory.newInstance();
 		XPath xpath = pathFactory.newXPath();
 		try {
@@ -96,7 +96,7 @@ public class XMLFileManager {
 			NodeList node = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
 			return node.item(0).getTextContent();
 		} catch (XPathExpressionException e) {
-			FrameManager.logger.error("last attendance date not found : " + e.toString());
+			FrameManager.LOGGER.error("last attendance date not found : " + e.toString());
 			return null;
 		}
 	}
@@ -108,13 +108,13 @@ public class XMLFileManager {
 	 */
 	public String getLookAndFeel() {
 		try {
-			FrameManager.logger.info("reading look and feel selection");
+			FrameManager.LOGGER.info("reading look and feel selection");
 			XPathFactory pathFactory = XPathFactory.newInstance();
 			XPath xpath = pathFactory.newXPath();
 			XPathExpression expr = xpath.compile("//Skin");
 			return ((Node) expr.evaluate(document, XPathConstants.NODE)).getTextContent();
 		} catch (XPathExpressionException e) {
-			FrameManager.logger.error("look and feel selection not found : " + e.toString());
+			FrameManager.LOGGER.error("look and feel selection not found : " + e.toString());
 		}
 		return "crossplatform";
 	}
@@ -125,7 +125,7 @@ public class XMLFileManager {
 	 * @param newLookAndFeel name of look and feel
 	 */
 	public void changeLookAndFeel(String newLookAndFeel) {
-		FrameManager.logger.info("change look and feel selection in accounts.xml");
+		FrameManager.LOGGER.info("change look and feel selection in accounts.xml");
 		XPathFactory pathFactory = XPathFactory.newInstance();
 		XPath xpath = pathFactory.newXPath();
 		XPathExpression expr;
@@ -136,7 +136,7 @@ public class XMLFileManager {
 			skin.setTextContent(newLookAndFeel);
 			writeDocument(document);
 		} catch (XPathExpressionException e) {
-			FrameManager.logger.error("look and feel selection not found : " + e.toString());
+			FrameManager.LOGGER.error("look and feel selection not found : " + e.toString());
 		}
 	}
 
@@ -148,7 +148,7 @@ public class XMLFileManager {
 	 */
 	public void renameAccount(String oldName, String newName) {
 		try {
-			FrameManager.logger.info("change account name in accounts.xml");
+			FrameManager.LOGGER.info("change account name in accounts.xml");
 			XPathFactory pathFactory = XPathFactory.newInstance();
 			XPath xpath = pathFactory.newXPath();
 			XPathExpression expr = xpath.compile("//Account[userName='" + oldName + "']/userName");
@@ -156,7 +156,7 @@ public class XMLFileManager {
 			account.setTextContent(newName);
 			writeDocument(document);
 		} catch (XPathExpressionException e) {
-			FrameManager.logger.error("account name not found : " + e.toString());
+			FrameManager.LOGGER.error("account name not found : " + e.toString());
 		}
 	}
 
@@ -168,7 +168,7 @@ public class XMLFileManager {
 	 */
 	public void rewriteAccount(AccountData accountData) {
 		try {
-			FrameManager.logger.info("rewrite account data in accounts.xml");
+			FrameManager.LOGGER.info("rewrite account data in accounts.xml");
 			XPathFactory pathFactory = XPathFactory.newInstance();
 			XPath xpath = pathFactory.newXPath();
 			// find "root" element for account
@@ -228,7 +228,7 @@ public class XMLFileManager {
 			}
 			writeDocument(document);
 		} catch (XPathExpressionException e) {
-			FrameManager.logger.error("account not found : " + e.toString());
+			FrameManager.LOGGER.error("account not found : " + e.toString());
 		}
 	}
 
@@ -240,7 +240,7 @@ public class XMLFileManager {
 	 * @throws XPathExpressionException
 	 */
 	public AccountData getAccountDataBy(String userName) throws XPathExpressionException {
-		FrameManager.logger.info("read account data for " + userName + "  from accounts.xml");
+		FrameManager.LOGGER.info("read account data for " + userName + "  from accounts.xml");
 		XPathFactory pathFactory = XPathFactory.newInstance();
 		XPath xpath = pathFactory.newXPath();
 		XPathExpression expr = xpath.compile("//Account[userName='" + userName + "']");
@@ -280,7 +280,7 @@ public class XMLFileManager {
 	 * @param userName
 	 */
 	public void deleteAccount(String userName) {
-		FrameManager.logger.info("delete account data from accounts.xml");
+		FrameManager.LOGGER.info("delete account data from accounts.xml");
 		XPathFactory pathFactory = XPathFactory.newInstance();
 		XPath xpath = pathFactory.newXPath();
 		XPathExpression expr;
@@ -292,7 +292,7 @@ public class XMLFileManager {
 			root.removeChild(account);
 			writeDocument(document);
 		} catch (XPathExpressionException e) {
-			FrameManager.logger.error("account not found : " + e.toString());
+			FrameManager.LOGGER.error("account not found : " + e.toString());
 		}
 	}
 
@@ -304,7 +304,7 @@ public class XMLFileManager {
 	 * @throws DOMException
 	 */
 	public void addNewAccount(AccountData data) throws TransformerFactoryConfigurationError, DOMException {
-		FrameManager.logger.info("write account data " + data + " in accounts.xml");
+		FrameManager.LOGGER.info("write account data " + data + " in accounts.xml");
 		XPathFactory pathFactory = XPathFactory.newInstance();
 		XPath xpath = pathFactory.newXPath();
 		XPathExpression expr;
@@ -359,7 +359,7 @@ public class XMLFileManager {
 			root.appendChild(account);
 			writeDocument(document);
 		} catch (XPathExpressionException e) {
-			FrameManager.logger.error("no root node : " + e.toString());
+			FrameManager.LOGGER.error("no root node : " + e.toString());
 		}
 	}
 
@@ -375,7 +375,7 @@ public class XMLFileManager {
 	 */
 	private Element createProtocolNode(String protocol, String protokolServer, String protokolPort, String ssl,
 			String tls) {
-		FrameManager.logger.info("create " + protocol + " protocol node");
+		FrameManager.LOGGER.info("create " + protocol + " protocol node");
 		Element protocolMainNode = document.createElement(protocol);
 		Element protokolServerNode = document.createElement(protocol + "Server");
 		protokolServerNode.setTextContent(protokolServer);
@@ -402,7 +402,7 @@ public class XMLFileManager {
 	 * @return list of containers with account information
 	 */
 	public List<AccountData> getAccountDaten() {
-		FrameManager.logger.info("read all accounts from accounts.xml");
+		FrameManager.LOGGER.info("read all accounts from accounts.xml");
 		List<AccountData> accountDatenList = new ArrayList<AccountData>();
 		XPathFactory pathFactory = XPathFactory.newInstance();
 		XPath xpath = pathFactory.newXPath();
@@ -417,7 +417,7 @@ public class XMLFileManager {
 		} catch (XPathExpressionException e) {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame, FrameManager.getLanguageProperty("error.dataLoad"),
 					FrameManager.getLanguageProperty("error.title.dataLoad"), JOptionPane.ERROR_MESSAGE);
-			FrameManager.logger.error("error reading account data : " + e.toString());
+			FrameManager.LOGGER.error("error reading account data : " + e.toString());
 		}
 		return accountDatenList;
 
@@ -438,7 +438,7 @@ public class XMLFileManager {
 			tr.transform(source, result);
 			fos.close();
 		} catch (TransformerException | IOException e) {
-			FrameManager.logger.error("while xml file writing : " + e.toString());
+			FrameManager.LOGGER.error("while xml file writing : " + e.toString());
 		}
 	}
 }

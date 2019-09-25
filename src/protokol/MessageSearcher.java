@@ -17,7 +17,7 @@ import gui.FrameManager;
 
 public class MessageSearcher {
 	public Message[] findMessage(Folder folder, MessageContainer messageContainer) throws MessagingException {
-		FrameManager.logger.info("search for message " + messageContainer + " in folder " + folder.getFullName());
+		FrameManager.LOGGER.info("search for message " + messageContainer + " in folder " + folder.getFullName());
 		SearchTerm searchCondition = new SearchTerm() {
 			@Override
 			public boolean match(Message message) {
@@ -30,9 +30,9 @@ public class MessageSearcher {
 						return true;
 					}
 				} catch (MessagingException ex) {
-					FrameManager.logger.error("while searching message : " + ex.toString());
+					FrameManager.LOGGER.error("while searching message : " + ex.toString());
 				} catch (NullPointerException e) {
-					FrameManager.logger.error("while searching message : " + e.toString());
+					FrameManager.LOGGER.error("while searching message : " + e.toString());
 					return false;
 				}
 				return false;

@@ -33,7 +33,7 @@ public class ConnectionManager implements ConnectionCreator, MessageManager {
 
 	@Override
 	public Store createReadSession(String protokol, AccountData data) {
-		FrameManager.logger.info(data);
+		FrameManager.LOGGER.info(data);
 		return connectionCreator.createReadSession(protokol, data);
 	}
 
@@ -204,7 +204,7 @@ public class ConnectionManager implements ConnectionCreator, MessageManager {
 	 * closes all sessions, called on program end
 	 */
 	public void closeAllSessions() {
-		FrameManager.logger.info("close all sessions");
+		FrameManager.LOGGER.info("close all sessions");
 		try {
 			if (popSession != null) {
 				popSession.close();
@@ -214,7 +214,7 @@ public class ConnectionManager implements ConnectionCreator, MessageManager {
 			}
 
 		} catch (MessagingException e) {
-			FrameManager.logger.error("closing sessions : " + e.toString());
+			FrameManager.LOGGER.error("closing sessions : " + e.toString());
 		}
 	}
 

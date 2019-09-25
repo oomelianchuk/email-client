@@ -22,7 +22,7 @@ public class GlobalDataContainer {
 	private static NewAccountDialog popUP;
 	private static ArrayList<AccountData> accounts = new ArrayList<AccountData>();
 	private static HashMap<String, ConnectionManager> connections = new HashMap<String, ConnectionManager>();
-	public static final Logger logger = LogManager.getLogger(FrameManager.class);
+	public static final Logger LOGGER = LogManager.getLogger(FrameManager.class);
 
 	public static AccountData getAccountByName(String userName) {
 		AccountData accountToCompare = new AccountData();

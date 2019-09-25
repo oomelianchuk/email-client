@@ -26,13 +26,13 @@ public class MailLoader implements BackgroundAction, Runnable {
 	private ConnectionManager connectionManager;
 	private boolean active = true;
 	private Thread thread;
-	private final Logger logger;
+	private final Logger LOGGER;
 
 	public MailLoader(ConnectionManager connectionManager, AccountData data, String protocol) {
 		this.data = data;
 		this.protocol = protocol;
 		this.connectionManager = connectionManager;
-		logger = LogManager.getLogger(MailLoader.class.getName() + "-" + data.getUserName().replaceAll(" ", ""));
+		LOGGER = LogManager.getLogger(MailLoader.class.getName() + "-" + data.getUserName().replaceAll(" ", ""));
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class MailLoader implements BackgroundAction, Runnable {
 	 */
 	@Override
 	public void action(JProgressBar progressBar, JLabel label) {
-		FrameManager.logger.info("start loading mail");
+		FrameManager.LOGGER.info("start loading mail");
 		label.setText(FrameManager.getLanguageProperty("mailLoader.label.mailLoad"));
 		int folderValue = progressBar.getMaximum() / data.getFolders().size();
 		for (MailFolder folder : data.getFolders()) {
@@ -58,13 +58,13 @@ public class MailLoader implements BackgroundAction, Runnable {
 	 * to load new mails after program start
 	 */
 	public void action() {
-		logger.info("loading messages in background");
+		LOGGER.info("loading messages in background");
 		boolean newMessage = false;
 		ArrayList<MessageContainer> messages = new ArrayList<MessageContainer>();
 		for (int i = 0; i < data.getFolders().size() && data.getFolders().get(i) != null; i++) {
 			messages = connectionManager.downloadMailAfterDate(protocol, data.getUserName(),
 					data.getFolders().get(i).getName().replaceAll("\\[", "").replaceAll("\\]", ""),
-					data.getLastUpdateData() == null ? new Date() : data.getLastUpdateData(), logger);
+					data.getLastUpdateData() == null ? new Date() : data.getLastUpdateData(), LOGGER);
 			// if new message is loaded for any folder, check other folders for new messages
 			// (gmail receive messages in different folders at the same time)
 			if (!messages.isEmpty()) {
@@ -73,7 +73,7 @@ public class MailLoader implements BackgroundAction, Runnable {
 				for (int j = 0; j < data.getFolders().size(); j++) {
 					messages = connectionManager.downloadMailAfterDate(protocol, data.getUserName(),
 							data.getFolders().get(j).getName().replaceAll("\\[", "").replaceAll("\\]", ""),
-							data.getLastUpdateData() == null ? new Date() : data.getLastUpdateData(), logger);
+							data.getLastUpdateData() == null ? new Date() : data.getLastUpdateData(), LOGGER);
 					data.getFolders().get(j).getMessages().addAll(messages);
 				}
 				break;
@@ -85,7 +85,7 @@ public class MailLoader implements BackgroundAction, Runnable {
 							data.getUserName()),
 					FrameManager.getLanguageProperty("popup.title.newMessage"), JOptionPane.PLAIN_MESSAGE);
 			data.setLastUpdateDate(new Date());
-			logger.info("new messages loaded");
+			LOGGER.info("new messages loaded");
 		}
 	}
 
@@ -103,13 +103,13 @@ public class MailLoader implements BackgroundAction, Runnable {
 	}
 
 	public void join() {
-		FrameManager.logger.info("joining thread");
-		logger.info("joining thread");
+		FrameManager.LOGGER.info("joining thread");
+		LOGGER.info("joining thread");
 		active = false;
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
-			logger.error("thread interrupted : " + e.toString());
+			LOGGER.error("thread interrupted : " + e.toString());
 		}
 	}
 }

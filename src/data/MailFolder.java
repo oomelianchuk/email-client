@@ -17,7 +17,7 @@ import protokol.MessageContainer;
 
 public class MailFolder implements Serializable {
 	private String pathToFolder;
-	public final int numberOfMessagesOnStart;
+	public final int NUMBER_OF_MESSAGES_ON_START;
 	transient private ArrayList<MessageContainer> messages;
 
 	public void addMessage(MessageContainer message) {
@@ -75,7 +75,7 @@ public class MailFolder implements Serializable {
 				}
 			}
 		}
-		numberOfMessagesOnStart = messages.size();
+		NUMBER_OF_MESSAGES_ON_START = messages.size();
 	}
 
 	public MailFolder(String userName, String folderName, ArrayList<MessageContainer> messages) {
@@ -83,7 +83,7 @@ public class MailFolder implements Serializable {
 				.replaceAll("\\{userName\\}", userName)
 				.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", ""));
 		this.messages = messages;
-		numberOfMessagesOnStart = messages.size();
+		NUMBER_OF_MESSAGES_ON_START = messages.size();
 	}
 
 	public void serialize() throws FileNotFoundException, IOException {

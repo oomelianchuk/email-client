@@ -51,7 +51,7 @@ public class MessageManagerImpl implements MessageManager {
 			throws MessagingException {
 		// open current messages' folder
 		Folder folder = session.getDefaultFolder().getFolder(messageContainer.getFolderName());
-		FrameManager.logger.info("moving message to folder " + folder);
+		FrameManager.LOGGER.info("moving message to folder " + folder);
 		openFolder(folder, Folder.READ_WRITE, messageContainer.getAccountName());
 
 		// search for specified message
@@ -60,18 +60,18 @@ public class MessageManagerImpl implements MessageManager {
 		// open folder to move message in
 		Folder newFolder = session.getDefaultFolder().getFolder(newFolderName);
 		openFolder(newFolder, Folder.READ_WRITE, messageContainer.getAccountName());
-		FrameManager.logger.info("copy messages from " + folder + " to " + newFolder);
+		FrameManager.LOGGER.info("copy messages from " + folder + " to " + newFolder);
 
 		// copy message
 		folder.copyMessages(ourMessage, newFolder);
-		FrameManager.logger.info("closing " + folder);
+		FrameManager.LOGGER.info("closing " + folder);
 
 		// close all folders
 		folder.close();
-		FrameManager.logger.info(folder + " closed");
-		FrameManager.logger.info("closing " + newFolder);
+		FrameManager.LOGGER.info(folder + " closed");
+		FrameManager.LOGGER.info("closing " + newFolder);
 		newFolder.close();
-		FrameManager.logger.info(newFolder + " closed");
+		FrameManager.LOGGER.info(newFolder + " closed");
 	}
 
 	/**
@@ -87,12 +87,12 @@ public class MessageManagerImpl implements MessageManager {
 	@Override
 	public ArrayList<String> getFolderNames(Store session, AccountData data) {
 		// receiving folders
-		FrameManager.logger.info("receive folders");
+		FrameManager.LOGGER.info("receive folders");
 		Folder[] folders = new Folder[0];
 		try {
 			folders = session.getDefaultFolder().list("*");
 		} catch (MessagingException e) {
-			FrameManager.logger.error("while receiveing folders : " + e.toString());
+			FrameManager.LOGGER.error("while receiveing folders : " + e.toString());
 		}
 		ArrayList<String> folderNames = new ArrayList<String>();
 
@@ -100,11 +100,11 @@ public class MessageManagerImpl implements MessageManager {
 		for (Folder folder : folders) {
 			// not accessible folder
 			if (!folder.getFullName().equals("[Gmail]")) {
-				FrameManager.logger.info("folder " + folder.getFullName() + " received");
+				FrameManager.LOGGER.info("folder " + folder.getFullName() + " received");
 				folderNames.add(folder.getName());
 			}
 		}
-		FrameManager.logger.info("all folders received");
+		FrameManager.LOGGER.info("all folders received");
 		return folderNames;
 	}
 
@@ -123,7 +123,7 @@ public class MessageManagerImpl implements MessageManager {
 	@Override
 	public void downloadAttachment(Store session, String path, String folderName, MessageContainer messageContainer,
 			String attachmentName) {
-		FrameManager.logger.info("starting attachment download to " + path);
+		FrameManager.LOGGER.info("starting attachment download to " + path);
 		try {
 			Folder folder = session.getDefaultFolder().getFolder(folderName);
 			openFolder(folder, Folder.READ_ONLY, messageContainer.getAccountName());
@@ -134,12 +134,12 @@ public class MessageManagerImpl implements MessageManager {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame,
 					FrameManager.getLanguageProperty("error.attachmentLoadingFailed"),
 					FrameManager.getLanguageProperty("error.title.attachmentLoadingFailed"), JOptionPane.ERROR_MESSAGE);
-			FrameManager.logger.error("opening/closing folder/finding message : " + e.toString());
+			FrameManager.LOGGER.error("opening/closing folder/finding message : " + e.toString());
 		}
 	}
 
 	private void saveAttachmentFile(Message message, String path, String attachmentName) {
-		FrameManager.logger.info("download attachment " + attachmentName);
+		FrameManager.LOGGER.info("download attachment " + attachmentName);
 		try {
 			Multipart multipart = (Multipart) message.getContent();
 			for (int i = 0; i < multipart.getCount(); i++) {
@@ -148,7 +148,7 @@ public class MessageManagerImpl implements MessageManager {
 					continue; // dealing with attachments only
 				}
 				if (bodyPart.getFileName() != null && bodyPart.getFileName().contains(attachmentName)) {
-					FrameManager.logger.info("attachment found, strarting download");
+					FrameManager.LOGGER.info("attachment found, strarting download");
 					InputStream is = bodyPart.getInputStream();
 					File f = new File(path + "/" + bodyPart.getFileName());
 					FileOutputStream fos = new FileOutputStream(f);
@@ -164,7 +164,7 @@ public class MessageManagerImpl implements MessageManager {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame,
 					FrameManager.getLanguageProperty("error.attachmentLoadingFailed"),
 					FrameManager.getLanguageProperty("error.title.attachmentLoadingFailed"), JOptionPane.ERROR_MESSAGE);
-			FrameManager.logger.error("opening/closing folder/finding message : " + e.toString());
+			FrameManager.LOGGER.error("opening/closing folder/finding message : " + e.toString());
 		}
 	}
 
@@ -177,7 +177,7 @@ public class MessageManagerImpl implements MessageManager {
 	 */
 	@Override
 	public void deleteMessage(Store session, String folderName, MessageContainer messageContainer) {
-		FrameManager.logger.info("delete " + messageContainer + " from folder " + folderName + " on server");
+		FrameManager.LOGGER.info("delete " + messageContainer + " from folder " + folderName + " on server");
 		try {
 			Folder folder = session.getDefaultFolder().getFolder(folderName);
 			openFolder(folder, Folder.READ_WRITE, messageContainer.getAccountName());
@@ -187,7 +187,7 @@ public class MessageManagerImpl implements MessageManager {
 		} catch (MessagingException e) {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame, "Message can not be deleted now, please try later",
 					"Delete Error", JOptionPane.ERROR_MESSAGE);
-			FrameManager.logger.error("opening/closing folder/finding message : " + e.toString());
+			FrameManager.LOGGER.error("opening/closing folder/finding message : " + e.toString());
 		}
 	}
 
@@ -199,7 +199,7 @@ public class MessageManagerImpl implements MessageManager {
 	 */
 	@Override
 	public void setMessageAsSeen(Store session, String folderName, MessageContainer messageContainer) {
-		FrameManager.logger
+		FrameManager.LOGGER
 				.info("set message  " + messageContainer + " from folder " + folderName + " as seen on server");
 		try {
 			Folder folder;
@@ -213,7 +213,7 @@ public class MessageManagerImpl implements MessageManager {
 		} catch (MessagingException e) {
 			JOptionPane.showMessageDialog(FrameManager.mainFrame, "Connection failed", "Connection failed",
 					JOptionPane.ERROR_MESSAGE);
-			FrameManager.logger.error("opening/closing folder/finding message : " + e.toString());
+			FrameManager.LOGGER.error("opening/closing folder/finding message : " + e.toString());
 		}
 	}
 
@@ -228,9 +228,9 @@ public class MessageManagerImpl implements MessageManager {
 	@Override
 	public void forward(Session smtpSession, Store session, MessageContainer messageContainer,
 			MessageContainer commentMessage, String text) {
-		FrameManager.logger.info("forward message  " + messageContainer);
+		FrameManager.LOGGER.info("forward message  " + messageContainer);
 		try {
-			FrameManager.logger.info("finding the message on server");
+			FrameManager.LOGGER.info("finding the message on server");
 			Folder folder = null;
 			String[] splitedMessageBodyPath = messageContainer.getPath().split("/");
 
@@ -243,8 +243,8 @@ public class MessageManagerImpl implements MessageManager {
 
 			openFolder(folder, Folder.READ_ONLY, folderName);
 			Message ourMessage = new MessageSearcher().findMessage(folder, messageContainer)[0];
-			FrameManager.logger.info("message found");
-			FrameManager.logger.info("construct new message");
+			FrameManager.LOGGER.info("message found");
+			FrameManager.LOGGER.info("construct new message");
 			// Fill in header
 			String[] recipients = commentMessage.getTo().split(";");
 			Address[] addresses = new Address[recipients.length];
@@ -270,7 +270,7 @@ public class MessageManagerImpl implements MessageManager {
 			messageBodyPart.setText(text);
 			multipart.addBodyPart(messageBodyPart);
 			if (!commentMessage.getAttachments().isEmpty()) {
-				FrameManager.logger.info("adding attachments from comment message");
+				FrameManager.LOGGER.info("adding attachments from comment message");
 				// Create your new message part
 				if (commentMessage.getAttachments() != null) {
 					for (String filename : commentMessage.getAttachments()) {
@@ -279,7 +279,7 @@ public class MessageManagerImpl implements MessageManager {
 				}
 			}
 			if (messageContainer.getAttachments() == null || messageContainer.getAttachments().isEmpty()) {
-				FrameManager.logger.info("adding attachments from forwarding message");
+				FrameManager.LOGGER.info("adding attachments from forwarding message");
 				for (int i = 0; i < ((Multipart) ourMessage.getContent()).getCount(); i++) {
 					BodyPart bodyPart = ((Multipart) ourMessage.getContent()).getBodyPart(i);
 					if (Part.ATTACHMENT.equalsIgnoreCase(bodyPart.getDisposition()) & bodyPart.getFileName() != null) {
@@ -290,17 +290,17 @@ public class MessageManagerImpl implements MessageManager {
 			// Create a multi-part to combine the parts
 			// Send message
 			forward.setContent(multipart);
-			FrameManager.logger.info("sending");
+			FrameManager.LOGGER.info("sending");
 			Transport.send(forward);
-			FrameManager.logger.info("sent");
-			FrameManager.logger.info("closing transport");
+			FrameManager.LOGGER.info("sent");
+			FrameManager.LOGGER.info("closing transport");
 			smtpSession.getTransport().close();
-			FrameManager.logger.info("transport closed");
-			FrameManager.logger.info("closing folder");
+			FrameManager.LOGGER.info("transport closed");
+			FrameManager.LOGGER.info("closing folder");
 			folder.close();
-			FrameManager.logger.info("folder closed");
+			FrameManager.LOGGER.info("folder closed");
 		} catch (MessagingException | IOException e) {
-			FrameManager.logger.error("forwarding message : " + e.toString());
+			FrameManager.LOGGER.error("forwarding message : " + e.toString());
 		}
 
 	}
@@ -313,10 +313,10 @@ public class MessageManagerImpl implements MessageManager {
 	 */
 	@Override
 	public void send(Session smtpSession, MessageContainer messageContainer, String text) {
-		FrameManager.logger.info("send message " + messageContainer);
+		FrameManager.LOGGER.info("send message " + messageContainer);
 		// Create the message part
 		try {
-			FrameManager.logger.info("constructing message");
+			FrameManager.LOGGER.info("constructing message");
 			Message message = new MimeMessage(smtpSession);
 			// fill header
 			String[] recipients = messageContainer.getTo().split(";");
@@ -331,7 +331,7 @@ public class MessageManagerImpl implements MessageManager {
 
 			// add attachment
 			if (!messageContainer.getAttachments().isEmpty()) {
-				FrameManager.logger.info("add attachments");
+				FrameManager.LOGGER.info("add attachments");
 				BodyPart messageBodyPartText = new MimeBodyPart();
 				messageBodyPartText.setText(text);
 				Multipart multipart = new MimeMultipart();
@@ -348,14 +348,14 @@ public class MessageManagerImpl implements MessageManager {
 			}
 
 			// Send message
-			FrameManager.logger.info("sending message");
+			FrameManager.LOGGER.info("sending message");
 			Transport.send(message);
-			FrameManager.logger.info("message sent");
-			FrameManager.logger.info("closing transport");
+			FrameManager.LOGGER.info("message sent");
+			FrameManager.LOGGER.info("closing transport");
 			smtpSession.getTransport().close();
-			FrameManager.logger.info("transport closed");
+			FrameManager.LOGGER.info("transport closed");
 		} catch (MessagingException e) {
-			FrameManager.logger.error("sending message : " + e.toString());
+			FrameManager.LOGGER.error("sending message : " + e.toString());
 		}
 
 	}
@@ -374,7 +374,7 @@ public class MessageManagerImpl implements MessageManager {
 	public ArrayList<MessageContainer> downloadMailAfterDate(Store session, String userName, String folderName,
 			Date date, Logger logger) {
 		if (logger == null) {
-			logger = FrameManager.logger;
+			logger = FrameManager.LOGGER;
 		}
 		// logger.info("download messages in folder " + folderName + " after date " +
 		// date.toString());
@@ -419,7 +419,7 @@ public class MessageManagerImpl implements MessageManager {
 	@Override
 	public ArrayList<MessageContainer> downloadAllMail(Store session, JProgressBar progressBar, int folderValue,
 			String protocol, String userName, String folderName) {
-		FrameManager.logger.info("download all mail");
+		FrameManager.LOGGER.info("download all mail");
 		try {
 			Folder folder;
 			folder = session.getDefaultFolder().getFolder(folderName);
@@ -440,13 +440,13 @@ public class MessageManagerImpl implements MessageManager {
 			folder.close();
 			return messages;
 		} catch (MessagingException | IOException e) {
-			FrameManager.logger.error("loading mail : " + e.toString());
+			FrameManager.LOGGER.error("loading mail : " + e.toString());
 		}
 		return null;
 	}
 
 	private void openFolder(Folder folder, int premission, String userName) {
-		openFolder(folder, premission, userName, FrameManager.logger);
+		openFolder(folder, premission, userName, FrameManager.LOGGER);
 	}
 
 	private void openFolder(Folder folder, int premission, String userName, Logger logger) {
@@ -507,7 +507,7 @@ public class MessageManagerImpl implements MessageManager {
 	 * @throws MessagingException
 	 */
 	private void addAttachmentFile(Multipart multipart, String filename) {
-		FrameManager.logger.info("add attachment " + filename + " to multipart message");
+		FrameManager.LOGGER.info("add attachment " + filename + " to multipart message");
 		BodyPart messageBodyPart = new MimeBodyPart();
 		DataSource source = new FileDataSource(filename);
 		try {
@@ -516,7 +516,7 @@ public class MessageManagerImpl implements MessageManager {
 			messageBodyPart.setFileName(filenameSplited[filenameSplited.length - 1]);
 			multipart.addBodyPart(messageBodyPart);
 		} catch (MessagingException e) {
-			FrameManager.logger.error("adding attachment : " + e.toString());
+			FrameManager.LOGGER.error("adding attachment : " + e.toString());
 		}
 	}
 
