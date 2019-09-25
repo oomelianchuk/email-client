@@ -52,13 +52,14 @@ public class PortPanel extends JPanel {
 		portTextField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				if (protocol.equals("pop")) {
+
+				if (protocol.equals("POP")) {
 					if (portTextField.getText().equals("995")) {
 						ssl.setSelected(true);
 					} else {
 						ssl.setSelected(false);
 					}
-				} else if (protocol.equals("imap")) {
+				} else if (protocol.equals("IMAP")) {
 					if (portTextField.getText().equals("993")) {
 						ssl.setSelected(true);
 					} else {
