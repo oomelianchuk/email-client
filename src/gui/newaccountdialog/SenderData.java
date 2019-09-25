@@ -25,7 +25,6 @@ public class SenderData extends JPanel {
 	private JTextField name = new JTextField();
 
 	public SenderData() {
-		super();
 		this.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10),
 				new CompoundBorder(new BevelBorder(BevelBorder.LOWERED),
 						new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new TitledBorder(FrameManager.getLanguageProperty("senderData.title"))))));

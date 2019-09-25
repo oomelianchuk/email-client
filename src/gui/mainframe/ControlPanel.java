@@ -35,7 +35,6 @@ public class ControlPanel extends JPanel {
 	private JButton move;
 
 	public ControlPanel() {
-		super();
 		checkedMessages = new ArrayList<MessageRowPanel>();
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(new LineBorder(Color.BLACK));

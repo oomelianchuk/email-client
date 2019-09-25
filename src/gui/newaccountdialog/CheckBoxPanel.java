@@ -18,7 +18,6 @@ public class CheckBoxPanel extends JPanel {
 	private HashMap<String, JCheckBox> checkBoxes;
 
 	public CheckBoxPanel() {
-		super();
 		checkBoxes = new HashMap<String, JCheckBox>();
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(new EmptyBorder(0, 0, 20, 50));

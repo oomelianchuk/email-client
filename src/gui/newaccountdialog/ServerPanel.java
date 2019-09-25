@@ -16,7 +16,6 @@ public class ServerPanel extends JPanel {
 	JTextField popServer;
 
 	public ServerPanel() {
-		super();
 		popServer = new JTextField(FrameManager.getLanguageProperty("serverPanel.domain"));
 		popServer.setMaximumSize(new Dimension(500, 25));
 		popServer.setPreferredSize(new Dimension(250, 25));

@@ -29,7 +29,6 @@ public class MessagesPanel extends JPanel {
 	private MailFolder folder;
 
 	public MessagesPanel(MailFolder folder) {
-		super();
 		this.folder = folder;
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		controlPanel = new ControlPanel();

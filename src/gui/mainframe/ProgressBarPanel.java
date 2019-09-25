@@ -13,7 +13,6 @@ public class ProgressBarPanel extends JPanel {
 	private JLabel processName;
 
 	public ProgressBarPanel() {
-		super();
 		this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 

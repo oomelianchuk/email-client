@@ -15,7 +15,6 @@ public class ProgressBarInMainFrame extends SwingWorker<Void, Void> {
 	private BackgroundAction action;
 
 	public ProgressBarInMainFrame(BackgroundAction action, boolean inNewFrame) {
-		super();
 		this.action = action;
 	}
 

@@ -8,7 +8,6 @@ public class SmtpAuthenticator extends Authenticator {
 	private String password;
 
 	public SmtpAuthenticator(String userAuth, String password) {
-		super();
 		this.userAuth = userAuth;
 		this.password = password;
 	}

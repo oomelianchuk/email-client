@@ -51,7 +51,6 @@ public class OpenedMessagePanel extends JPanel {
 
 	// constructor for simple and forward displaying
 	public OpenedMessagePanel(MessageContainer message, boolean forwarding) {
-		super();
 		this.setLayout(new BorderLayout());
 		// configure info panel
 		info = new InfoOpenedMessagePanel(forwarding);
@@ -253,7 +252,6 @@ public class OpenedMessagePanel extends JPanel {
 
 	// reply and send message
 	public OpenedMessagePanel(String userName, String from, String to, String subject, String text) {
-		super();
 		MessageContainer message = new MessageContainer(from, to, subject, new Date(), true, "");
 
 		this.setLayout(new BorderLayout());

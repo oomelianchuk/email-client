@@ -23,7 +23,6 @@ public class InfoOpenedMessagePanel extends JPanel {
 	private JLabel date;
 
 	public InfoOpenedMessagePanel(boolean isEnabled) {
-		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		JPanel subjectPanel = new JPanel();
 		subjectPanel.setLayout(new BoxLayout(subjectPanel, BoxLayout.X_AXIS));

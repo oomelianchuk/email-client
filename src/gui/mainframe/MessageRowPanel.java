@@ -45,7 +45,6 @@ public class MessageRowPanel extends JPanel {
 	JCheckBox checked;
 
 	public MessageRowPanel(MessageContainer message, Color lineBorderColor) {
-		super();
 		this.message = message;
 		String subject = message.getSubject();
 		String sender = message.getFrom();

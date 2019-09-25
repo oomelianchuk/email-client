@@ -24,7 +24,6 @@ public class MessagesTopLine extends JPanel {
 	JCheckBox checkAll;
 
 	public MessagesTopLine() {
-		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(new LineBorder(Color.BLACK));
 		checkAll = new JCheckBox();

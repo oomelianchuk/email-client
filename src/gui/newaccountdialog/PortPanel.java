@@ -26,7 +26,6 @@ public class PortPanel extends JPanel {
 	private JCheckBox tls;
 
 	public PortPanel(String protocol) {
-		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBorder(new EmptyBorder(0, 0, 11, 90));
 		separator = new JLabel(":");
