@@ -56,11 +56,10 @@ public class XMLFileManager {
 			File newFile = new File(path);
 			boolean created = newFile.createNewFile();
 			FrameManager.logger.info("xml file created " + created);
-			if (!created) {
-				document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.path);
-			} else {
+			if (created) {
 				createDocument(path);
 			}
+			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.path);
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			e.printStackTrace();
 		}

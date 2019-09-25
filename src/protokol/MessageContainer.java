@@ -22,6 +22,8 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.InternetAddress;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 import org.apache.commons.io.FileUtils;
 
@@ -95,7 +97,7 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 		} else {
 			messageXMLfolderName = Integer.toString(messageXMLfolderName.hashCode());
 		}
-		this.path = FrameManager.getProgramSetting("pathToAccountSettings").replaceAll("\\{userName\\}", userName)
+		this.path = FrameManager.getProgramSetting("pathToUserFolders").replaceAll("\\{userName\\}", userName)
 				.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", "")) + "/"
 				+ messageXMLfolderName;
 		try {
@@ -174,12 +176,22 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 		}
 	}
 
-//TODO: separate
 	public void delete() throws IOException {
-		MailFolder folder = GlobalDataContainer.getAccountByName(getAccountName()).getFolderByName(getFolderName());
-		folder.getMessages().remove(this);
-		GlobalDataContainer.getConnectionByAccount(getAccountName()).deleteMessage(getFolderName(), this);
-		FileUtils.deleteDirectory(new File(path));
+		new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				MailFolder folder = GlobalDataContainer.getAccountByName(getAccountName())
+						.getFolderByName(getFolderName());
+				folder.getMessages().remove(MessageContainer.this);
+				GlobalDataContainer.getConnectionByAccount(getAccountName()).deleteMessage(getFolderName(),
+						MessageContainer.this);
+				FileUtils.deleteDirectory(new File(path));
+				JOptionPane.showMessageDialog(FrameManager.mainFrame,
+						FrameManager.getLanguageProperty("popup.messageDeleted"),
+						FrameManager.getLanguageProperty("popup.title.messageDeleted"), JOptionPane.PLAIN_MESSAGE);
+				return null;
+			}
+		}.execute();
 	}
 
 	public void moveToFolder(String folder) {
@@ -194,11 +206,25 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 	}
 
 	public String getFolderName() {
-		return path.split("/")[2];
+		String[] pathParts = FrameManager.getProgramSetting("pathToUserFolders").split("/");
+		int i=0;
+		for (; i < pathParts.length; i++) {
+			if (pathParts[i].equals("\\{folderName\\}")) {
+				break;
+			}
+		}
+		return path.split("/")[i];
 	}
 
 	public String getAccountName() {
-		return path.split("/")[1];
+		String[] pathParts = FrameManager.getProgramSetting("pathToUserFolders").split("/");
+		int i=0;
+		for (; i < pathParts.length; i++) {
+			if (pathParts[i].equals("\\{userName\\}")) {
+				break;
+			}
+		}
+		return path.split("/")[i];
 	}
 
 	public String getMessageText() {
