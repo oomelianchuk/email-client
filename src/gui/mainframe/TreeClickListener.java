@@ -137,7 +137,7 @@ class TreeClickListener extends MouseAdapter {
 			accountToCompare.set("userName", userName);
 			GlobalDataContainer.getAccountByName(userName).set("userName", newUserName);
 			ConnectionManager connection = GlobalDataContainer.getConnectionByAccount(userName);
-			GlobalDataContainer.deleteConnection(connection);
+			GlobalDataContainer.deleteConnection(userName);
 			GlobalDataContainer.addConnection(newUserName, connection);
 			new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).renameAccount(userName,
 					newUserName);

@@ -49,7 +49,7 @@ public class GlobalDataContainer {
 	public static void addConnection(String userName, ConnectionManager connection) {
 		connections.put(userName, connection);
 	}
-	public static void deleteConnection(ConnectionManager connection) {
-		connections.remove(connection);
+	public static void deleteConnection(String userName) {
+		connections.remove(userName);
 	}
 }
