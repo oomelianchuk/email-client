@@ -61,8 +61,8 @@ public class SenderData extends JPanel {
 			email.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
 			accountDaten = null;
 		} else {
-			accountDaten.set("email", email.getText());
-			accountDaten.set("userName", name.getText());
+			accountDaten.setEmail(email.getText());
+			accountDaten.setUserName(name.getText());
 		}
 		return accountDaten;
 	}

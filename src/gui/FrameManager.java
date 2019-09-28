@@ -76,11 +76,6 @@ public class FrameManager {
 					+ FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName));
 			FileUtils.deleteDirectory(
 					new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName)));
-
-			LOGGER.info("delete account from xml");
-			XMLFileManager xml = new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"));
-			xml.deleteAccount(userName);
-
 			LOGGER.info("joing thread");
 			// end last update circle and kill check mail thread for this account
 			if (threads.get(userName) != null) {
@@ -157,10 +152,12 @@ public class FrameManager {
 			LOGGER.info("add account on view");
 			// add account tree node on main frame
 			mainFrame.addNewAccount(data);
-			LOGGER.info("write account in xml");
-			// create account node in xml file
-			XMLFileManager xml = new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"));
-			xml.addNewAccount(data);
+			try {
+				data.serialize();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			// start loading mail for account
 			// create a progress bar to display the progress
 			ProgressBarPanel progressBarPanel = new ProgressBarPanel();
@@ -194,7 +191,7 @@ public class FrameManager {
 			GlobalDataContainer.addConnection(data.getUserName(), connectionManager);
 			GlobalDataContainer.addAccount(data);
 			// start background thread to check for new mail
-			if (Boolean.parseBoolean(data.get("runInBackground"))) {
+			if (data.isRunInBackground()) {
 				MailLoader thread = new MailLoader(connectionManager, data,
 						data.getImapServer() == null ? "pop" : "imap");
 				thread.runAsThread();
@@ -240,15 +237,15 @@ public class FrameManager {
 
 	private static void configureTheame() {
 		// read theme settings and set selected theme
-		String theme =new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).getLookAndFeel();
-			try {
-				UIManager.setLookAndFeel(theme);
-				LOGGER.info(theme+" look and feel set");
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-					| UnsupportedLookAndFeelException e1) {
-				e1.printStackTrace();
-				LOGGER.error("while setting "+theme+" look and feel: " + e1.toString());
-			}
+		String theme = new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).getLookAndFeel();
+		try {
+			UIManager.setLookAndFeel(theme);
+			LOGGER.info(theme + " look and feel set");
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e1) {
+			e1.printStackTrace();
+			LOGGER.error("while setting " + theme + " look and feel: " + e1.toString());
+		}
 	}
 
 	public static void loadAccounts() {
@@ -271,6 +268,7 @@ public class FrameManager {
 	}
 
 	public static void main(String[] args) {
+		String str = "two";
 
 		try (InputStream input = new FileInputStream("src/en.properties")) {
 			LANGUAGE_PROPERTIES.load(input);
@@ -295,7 +293,7 @@ public class FrameManager {
 		// run background threads to check for new mail for all accounts
 		for (AccountData data : GlobalDataContainer.getAccounts()) {
 			// new LoggerConfigurator().setUpLoggerForUser(data.getUserName());
-			if (Boolean.parseBoolean(data.get("runInBackground"))) {
+			if (data.isRunInBackground()) {
 				if (GlobalDataContainer.getConnectionByAccount(data.getUserName()) != null) {
 					LOGGER.info("starting background thread for " + data.getUserName());
 					MailLoader thread = new MailLoader(GlobalDataContainer.getConnectionByAccount(data.getUserName()),
@@ -316,8 +314,7 @@ public class FrameManager {
 					// wait until last mail update circle ends and close threads
 					for (AccountData account : GlobalDataContainer.getAccounts()) {
 						// close all connections for account
-						if (Boolean.parseBoolean(account.get("runInBackground"))
-								&& threads.get(account.getUserName()) != null) {
+						if (account.isRunInBackground() && threads.get(account.getUserName()) != null) {
 							LOGGER.info("closing thread for " + account.getUserName());
 							threads.get(account.getUserName()).join();
 							LOGGER.info("thread closed");
@@ -330,8 +327,16 @@ public class FrameManager {
 							LOGGER.info("connections closed");
 						}
 						LOGGER.info("rewriting xml");
-						new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"))
-								.rewriteAccount(account);
+						/*
+						 * new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"))
+						 * .rewriteAccount(account);
+						 */
+						try {
+							account.serialize();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 						LOGGER.info("xml rewrote");
 					}
 				}

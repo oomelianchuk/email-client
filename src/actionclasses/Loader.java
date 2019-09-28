@@ -43,7 +43,7 @@ public class Loader implements BackgroundAction {
 		this.label.setText(FrameManager.getLanguageProperty("loader.label.configuring"));
 		// first get short information from xml file
 		XMLFileManager xml = new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"));
-		ArrayList<AccountData> accountDatas = (ArrayList<AccountData>) xml.getAccountDaten();
+		ArrayList<AccountData> accountDatas = AccountData.deserializeAccounts();
 		FrameManager.LOGGER.info("data has been read");
 		// than, if there are some account
 		if (accountDatas.size() > 0) {
@@ -232,7 +232,7 @@ public class Loader implements BackgroundAction {
 		// password is incorrect)
 		while (!connectedProtocol) {
 			password = passwordFrame.getPassword();
-			data.set("password", password);
+			data.setPassword(password);
 			savePassword = passwordFrame.getSavePass();
 			if (protocol.equals("pop")) {
 				connectedProtocol = connectionManager.checkPopConnection(data);

@@ -26,7 +26,8 @@ public class GlobalDataContainer {
 
 	public static AccountData getAccountByName(String userName) {
 		AccountData accountToCompare = new AccountData();
-		accountToCompare.set("userName", userName);
+		accountToCompare.setUserName(userName);
+		System.out.println(userName);
 		return accounts.get(accounts.indexOf(accountToCompare));
 	}
 

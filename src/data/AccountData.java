@@ -1,14 +1,23 @@
 package data;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+
+import javax.swing.JOptionPane;
+
+import gui.FrameManager;
 
 public class AccountData implements Serializable {
 	private String email;
@@ -28,9 +37,39 @@ public class AccountData implements Serializable {
 	private String imapPort;
 	private String smtpPort;
 	private boolean savePass;
+	private ArrayList<String> folderNames = new ArrayList<String>();
 	private HashMap<String, MailFolder> folders = new HashMap<String, MailFolder>();
 	private Date lastUpdateData;
 	private boolean runInBackground;
+
+	public static ArrayList<AccountData> deserializeAccounts() {
+		ArrayList<AccountData> accountDatas = new ArrayList<AccountData>();
+		File folder = new File("src/accounts");
+		if (folder.listFiles() != null) {
+			for (File messageFolder : folder.listFiles()) {
+				accountDatas.add(deserializeAccount(messageFolder));
+			}
+		}
+		return accountDatas;
+	}
+
+	public static AccountData deserializeAccount(File fileName) {
+		try {
+			if (fileName.exists()) {
+				ObjectInputStream in = new ObjectInputStream(
+						new FileInputStream(fileName.getAbsoluteFile() + "/accounts.out"));
+				AccountData messageInfo = (AccountData) in.readObject();
+				in.close();
+				return messageInfo;
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, FrameManager.getLanguageProperty("error.messageLoadFailedForFolder"),
+					FrameManager.getLanguageProperty("error.title.messageLoadFailedForFolder"),
+					JOptionPane.ERROR_MESSAGE);
+		}
+		return new AccountData();
+	}
 
 	public Date getLastUpdateData() {
 		return lastUpdateData;
@@ -40,90 +79,108 @@ public class AccountData implements Serializable {
 		this.lastUpdateData = lastUpdateData;
 	}
 
-	public void set(String key, String value) {
-		if (key.equals("email")) {
-			this.email = value;
-		} else if (key.equals("userName")) {
-			this.userName = value;
-		} else if (key.equals("userAuth")) {
-			this.userAuth = value;
-		} else if (key.equals("password")) {
-			this.password = value;
-		} else if (key.equals("popServer")) {
-			this.popServer = value;
-		} else if (key.equals("popPort")) {
-			this.popPort = value;
-		} else if (key.equals("imapServer")) {
-			this.imapServer = value;
-		} else if (key.equals("imapPort")) {
-			this.imapPort = value;
-		} else if (key.equals("smtpServer")) {
-			this.smtpServer = value;
-		} else if (key.equals("smtpPort")) {
-			this.smtpPort = value;
-		} else if (key.equals("lastUpdate")) {
-			try {
-				this.lastUpdateData = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(value);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		} else if (key.equals("sslPop")) {
-			this.sslPop = Boolean.parseBoolean(value);
-		} else if (key.equals("sslImap")) {
-			this.sslImap = Boolean.parseBoolean(value);
-		} else if (key.equals("sslSmtp")) {
-			this.sslSmtp = Boolean.parseBoolean(value);
-		} else if (key.equals("tlsPop")) {
-			this.tlsPop = Boolean.parseBoolean(value);
-		} else if (key.equals("tlsImap")) {
-			this.tlsImap = Boolean.parseBoolean(value);
-		} else if (key.equals("tlsSmtp")) {
-			this.tlsSmtp = Boolean.parseBoolean(value);
-		} else if (key.equals("runInBackground")) {
-			this.runInBackground = Boolean.parseBoolean(value);
-		}
+	public boolean isSslPop() {
+		return sslPop;
 	}
 
-	public String get(String key) {
-		if (key.equals("email")) {
-			return email;
-		} else if (key.equals("userName")) {
-			return userName;
-		} else if (key.equals("userAuth")) {
-			return userAuth;
-		} else if (key.equals("password")) {
-			return password;
-		} else if (key.equals("popServer")) {
-			return popServer;
-		} else if (key.equals("popPort")) {
-			return popPort;
-		} else if (key.equals("imapServer")) {
-			return imapServer;
-		} else if (key.equals("imapPort")) {
-			return imapPort;
-		} else if (key.equals("smtpServer")) {
-			return smtpServer;
-		} else if (key.equals("smtpPort")) {
-			return smtpPort;
-		} else if (key.equals("lastUpdate")) {
-			return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(lastUpdateData);
-		} else if (key.equals("sslPop")) {
-			return Boolean.toString(this.sslPop);
-		} else if (key.equals("sslImap")) {
-			return Boolean.toString(this.sslImap);
-		} else if (key.equals("sslSmtp")) {
-			return Boolean.toString(this.sslSmtp);
-		} else if (key.equals("tlsPop")) {
-			return Boolean.toString(this.sslPop);
-		} else if (key.equals("tlsImap")) {
-			return Boolean.toString(this.tlsImap);
-		} else if (key.equals("tlsSmtp")) {
-			return Boolean.toString(this.tlsSmtp);
-		} else if (key.equals("runInBackground")) {
-			return Boolean.toString(runInBackground);
-		} else {
-			return null;
-		}
+	public void setSslPop(boolean sslPop) {
+		this.sslPop = sslPop;
+	}
+
+	public boolean isTlsPop() {
+		return tlsPop;
+	}
+
+	public void setTlsPop(boolean tlsPop) {
+		this.tlsPop = tlsPop;
+	}
+
+	public boolean isSslImap() {
+		return sslImap;
+	}
+
+	public void setSslImap(boolean sslImap) {
+		this.sslImap = sslImap;
+	}
+
+	public boolean isTlsImap() {
+		return tlsImap;
+	}
+
+	public void setTlsImap(boolean tlsImap) {
+		this.tlsImap = tlsImap;
+	}
+
+	public boolean isSslSmtp() {
+		return sslSmtp;
+	}
+
+	public void setSslSmtp(boolean sslSmtp) {
+		this.sslSmtp = sslSmtp;
+	}
+
+	public boolean isTlsSmtp() {
+		return tlsSmtp;
+	}
+
+	public void setTlsSmtp(boolean tlsSmtp) {
+		this.tlsSmtp = tlsSmtp;
+	}
+
+	public boolean isRunInBackground() {
+		return runInBackground;
+	}
+
+	public void setRunInBackground(boolean runInBackground) {
+		this.runInBackground = runInBackground;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public void setUserAuth(String userAuth) {
+		this.userAuth = userAuth;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setPopServer(String popServer) {
+		this.popServer = popServer;
+	}
+
+	public void setImapServer(String imapServer) {
+		this.imapServer = imapServer;
+	}
+
+	public void setSmtpServer(String smtpServer) {
+		this.smtpServer = smtpServer;
+	}
+
+	public void setPopPort(String popPort) {
+		this.popPort = popPort;
+	}
+
+	public void setImapPort(String imapPort) {
+		this.imapPort = imapPort;
+	}
+
+	public void setSmtpPort(String smtpPort) {
+		this.smtpPort = smtpPort;
+	}
+
+	public void setFolders(HashMap<String, MailFolder> folders) {
+		this.folders = folders;
+	}
+
+	public void setLastUpdateData(Date lastUpdateData) {
+		this.lastUpdateData = lastUpdateData;
 	}
 
 	public String getPort(String protocol) {
@@ -187,6 +244,9 @@ public class AccountData implements Serializable {
 				folders.put(folder.getName(), folder);
 			}
 		} else {
+			if (!folderNames.contains(folder.getName())) {
+				folderNames.add(folder.getName());
+			}
 			folders.put(folder.getName(), folder);
 		}
 	}
@@ -225,22 +285,47 @@ public class AccountData implements Serializable {
 	}
 
 	public void setFolders(ArrayList<MailFolder> folders) {
-		folders.forEach(folder -> this.folders.put(folder.getName(), folder));
+		folders.forEach(folder -> {
+			this.folders.put(folder.getName(), folder);
+			if (!folderNames.contains(folder.getName())) {
+				folderNames.add(folder.getName());
+			}
+		});
 	}
 
 	public void setFolderNames(ArrayList<String> folderNames) {
-		folderNames.forEach(folderName -> addFolderName(folderName));
+		folderNames.forEach(folderName -> {
+			addFolderName(folderName);
+			if (!folderNames.contains(folderName)) {
+				folderNames.add(folderName);
+			}
+		});
 	}
 
 	public void addFolderName(String folderName) {
+		if (!folderNames.contains(folderName)) {
+			folderNames.add(folderName);
+		}
 		folders.put(folderName, null);
 	}
 
 	public void serialize() throws IOException {
-		//TODO future thoughts
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("src/accounts.out"));
+		Files.createDirectories(Paths.get("src/accounts/" + userName));
+		ObjectOutputStream out = new ObjectOutputStream(
+				new FileOutputStream("src/accounts/" + userName + "/accounts.out"));
 		out.writeObject(this);
 		out.close();
+	}
+
+	public void rename(String newName) {
+		new File("src/accounts/" + userName + "/accounts.out").delete();
+		this.userName = newName;
+		try {
+			serialize();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

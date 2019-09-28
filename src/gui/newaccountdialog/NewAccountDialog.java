@@ -27,7 +27,7 @@ import gui.FrameManager;
 public class NewAccountDialog extends JFrame {
 	SenderData absenderDaten;
 	private JLabel errorMessage;
-	private JTextField userName;
+	private JTextField userAuth;
 	private JTextField userPass;
 	private ServerPanel popServerPanel;
 	private ServerPanel imapServerPanel;
@@ -82,11 +82,11 @@ public class NewAccountDialog extends JFrame {
 		downPart.add(textFileds);
 
 		JPanel userNamePanel = new JPanel();
-		userName = new JTextField();
-		userName.setMaximumSize(new Dimension(500, 25));
-		userName.setPreferredSize(new Dimension(250, 25));
-		userName.setMinimumSize(new Dimension(250, 25));
-		userNamePanel.add(userName);
+		userAuth = new JTextField();
+		userAuth.setMaximumSize(new Dimension(500, 25));
+		userAuth.setPreferredSize(new Dimension(250, 25));
+		userAuth.setMinimumSize(new Dimension(250, 25));
+		userNamePanel.add(userAuth);
 
 		JPanel userPassPanel = new JPanel();
 		userPass = new JPasswordField();
@@ -199,34 +199,34 @@ public class NewAccountDialog extends JFrame {
 		} else {
 			AccountData accountDaten = absenderDaten.getAccountDaten();
 			if (accountDaten != null) {
-				accountDaten.set("userAuth", userName.getText());
-				accountDaten.set("password", userPass.getText());
+				accountDaten.setUserAuth(userAuth.getText());
+				accountDaten.setPassword(userPass.getText());
 				accountDaten.setSavePass(savePass.isSelected());
 				if (!popEmpty) {
-					accountDaten.set("popServer", popServer.getText());
+					accountDaten.setPopServer(popServer.getText());
 					if (!(popPort.getText().equals("")
 							| popPort.getText().equals(FrameManager.getLanguageProperty("serverPanel.port")))) {
-						accountDaten.set("popPort", popPort.getText());
-						accountDaten.set("sslPop", Boolean.toString(popPortPanel.getPortSsl().isSelected()));
-						accountDaten.set("tlsPop", Boolean.toString(popPortPanel.getPortTls().isSelected()));
+						accountDaten.setPopPort(popPort.getText());
+						accountDaten.setSslPop(popPortPanel.getPortSsl().isSelected());
+						accountDaten.setTlsPop(popPortPanel.getPortTls().isSelected());
 					}
 				}
 				if (!imapEmpty) {
-					accountDaten.set("imapServer", imapServer.getText());
+					accountDaten.setImapServer(imapServer.getText());
 					if (!(imapPort.getText().equals("")
 							| imapPort.getText().equals(FrameManager.getLanguageProperty("serverPanel.port")))) {
-						accountDaten.set("imapPort", imapPort.getText());
-						accountDaten.set("sslImap", Boolean.toString(imapPortPanel.getPortSsl().isSelected()));
-						accountDaten.set("tlsImap", Boolean.toString(imapPortPanel.getPortTls().isSelected()));
+						accountDaten.setImapPort(imapPort.getText());
+						accountDaten.setSslImap(imapPortPanel.getPortSsl().isSelected());
+						accountDaten.setTlsImap(imapPortPanel.getPortTls().isSelected());
 					}
 				}
 				if (!smtpEmpty) {
-					accountDaten.set("smtpServer", smtpServer.getText());
-					accountDaten.set("smtpPort", smtpPort.getText());
-					accountDaten.set("sslSmtp", Boolean.toString(smtpPortPanel.getPortSsl().isSelected()));
-					accountDaten.set("tlsSmtp", Boolean.toString(smtpPortPanel.getPortTls().isSelected()));
+					accountDaten.setSmtpServer(smtpServer.getText());
+					accountDaten.setSmtpPort(smtpPort.getText());
+					accountDaten.setSslSmtp(smtpPortPanel.getPortSsl().isSelected());
+					accountDaten.setTlsSmtp(smtpPortPanel.getPortTls().isSelected());
 				}
-				accountDaten.set("runInBackground", Boolean.toString(runInBackground.isSelected()));
+				accountDaten.setRunInBackground(runInBackground.isSelected());
 				new FrameManager().createAccount(accountDaten);
 			}
 		}

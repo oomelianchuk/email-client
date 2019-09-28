@@ -180,15 +180,21 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 		new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {
+				System.out.println("on delete");
 				MailFolder folder = GlobalDataContainer.getAccountByName(getAccountName())
 						.getFolderByName(getFolderName());
+				System.out.println("here1");
 				folder.getMessages().remove(MessageContainer.this);
+				System.out.println("here2");
 				GlobalDataContainer.getConnectionByAccount(getAccountName()).deleteMessage(getFolderName(),
 						MessageContainer.this);
+				System.out.println("here3");
 				FileUtils.deleteDirectory(new File(path));
+				System.out.println("here4");
 				JOptionPane.showMessageDialog(FrameManager.mainFrame,
 						FrameManager.getLanguageProperty("popup.messageDeleted"),
 						FrameManager.getLanguageProperty("popup.title.messageDeleted"), JOptionPane.PLAIN_MESSAGE);
+				System.out.println("deleted");
 				return null;
 			}
 		}.execute();
@@ -209,7 +215,7 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 		String[] pathParts = FrameManager.getProgramSetting("pathToUserFolders").split("/");
 		int i=0;
 		for (; i < pathParts.length; i++) {
-			if (pathParts[i].equals("\\{folderName\\}")) {
+			if (pathParts[i].equals("{folderName}")) {
 				break;
 			}
 		}
@@ -220,7 +226,7 @@ public class MessageContainer implements Comparable<MessageContainer>, Serializa
 		String[] pathParts = FrameManager.getProgramSetting("pathToUserFolders").split("/");
 		int i=0;
 		for (; i < pathParts.length; i++) {
-			if (pathParts[i].equals("\\{userName\\}")) {
+			if (pathParts[i].equals("{userName}")) {
 				break;
 			}
 		}

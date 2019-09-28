@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -133,14 +134,20 @@ class TreeClickListener extends MouseAdapter {
 			((DefaultTreeModel) tree.getModel())
 					.nodeChanged((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
 
-			AccountData accountToCompare = new AccountData();
-			accountToCompare.set("userName", userName);
-			GlobalDataContainer.getAccountByName(userName).set("userName", newUserName);
+			/*
+			 * new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).
+			 * renameAccount(userName, newUserName);
+			 */
+			try {
+				GlobalDataContainer.getAccountByName(userName).serialize();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			GlobalDataContainer.getAccountByName(userName).setUserName(newUserName);
 			ConnectionManager connection = GlobalDataContainer.getConnectionByAccount(userName);
 			GlobalDataContainer.deleteConnection(userName);
 			GlobalDataContainer.addConnection(newUserName, connection);
-			new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).renameAccount(userName,
-					newUserName);
 			new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName)).renameTo(
 					new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", newUserName)));
 		}
@@ -152,7 +159,7 @@ class TreeClickListener extends MouseAdapter {
 				FrameManager.getLanguageProperty("changePassword.text"),
 				FrameManager.getLanguageProperty("changePassword.header"), JOptionPane.QUESTION_MESSAGE);
 		if (newPassword != null) {
-			GlobalDataContainer.getAccountByName(userName).set("password", newPassword);
+			GlobalDataContainer.getAccountByName(userName).setPassword(newPassword);
 		}
 		JOptionPane.showMessageDialog(FrameManager.mainFrame, FrameManager.getLanguageProperty("popup.passwordChanged"),
 				FrameManager.getLanguageProperty("popup.title.passwordChanged"), JOptionPane.PLAIN_MESSAGE);

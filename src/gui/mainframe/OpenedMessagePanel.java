@@ -258,7 +258,7 @@ public class OpenedMessagePanel extends JPanel {
 		InfoOpenedMessagePanel info = new InfoOpenedMessagePanel(true);
 		info.setSender(from);
 		AccountData accountToCompare = new AccountData();
-		accountToCompare.set("userName", userName);
+		accountToCompare.setUserName(userName);
 		info.setTo(to);
 		info.setSubject(subject);
 		JPanel attachAndSend = new JPanel();

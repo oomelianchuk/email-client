@@ -18,13 +18,14 @@ import protokol.MessageContainer;
 public class MailFolder implements Serializable {
 	private String pathToFolder;
 	public final int NUMBER_OF_MESSAGES_ON_START;
-	transient private ArrayList<MessageContainer> messages;
+	private ArrayList<MessageContainer> messages = new ArrayList<MessageContainer>();
 
 	public void addMessage(MessageContainer message) {
 		this.messages.add(message);
 	}
 
 	public void addAllMessages(ArrayList<MessageContainer> messages) {
+		System.out.println(this.messages);
 		messages.forEach(message -> {
 			if (!this.messages.contains(message)) {
 				this.messages.add(message);
@@ -50,7 +51,7 @@ public class MailFolder implements Serializable {
 	}
 
 	public String getAccountName() {
-		return pathToFolder.split("/")[1];
+		return pathToFolder.split("/")[2];
 	}
 
 	public MailFolder(String pathToFolder) {
@@ -79,8 +80,7 @@ public class MailFolder implements Serializable {
 	}
 
 	public MailFolder(String userName, String folderName, ArrayList<MessageContainer> messages) {
-		this.pathToFolder =  FrameManager.getProgramSetting("pathToUserFolders")
-				.replaceAll("\\{userName\\}", userName)
+		this.pathToFolder = FrameManager.getProgramSetting("pathToUserFolders").replaceAll("\\{userName\\}", userName)
 				.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", ""));
 		this.messages = messages;
 		NUMBER_OF_MESSAGES_ON_START = messages.size();

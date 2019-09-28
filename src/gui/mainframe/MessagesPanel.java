@@ -165,6 +165,7 @@ public class MessagesPanel extends JPanel {
 		// messages loaded
 		ArrayList<MessageContainer> messages = folder.getMessages();
 		removeAll();
+		System.out.println(folder.getMessages().size());
 		Collections.sort(folder.getMessages());
 		for (int i = 0; i < messages.size(); i++) {
 			MessageRowPanel messageRow = new MessageRowPanel(folder.getMessages().get(i), Color.black);
