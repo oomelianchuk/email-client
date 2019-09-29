@@ -1,8 +1,14 @@
 package gui.mainframe;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import actionclasses.ChangePasswordTask;
+import actionclasses.DeleteAccountTask;
+import actionclasses.RenameAccountTast;
 import gui.FrameManager;
 
 /**
@@ -11,16 +17,33 @@ import gui.FrameManager;
  *
  */
 public class ContextMenu extends JPopupMenu {
-	JMenuItem deleteUser;
-	JMenuItem renameUser;
-	JMenuItem changePass;
 
-	public ContextMenu() {
-		deleteUser = new JMenuItem(FrameManager.getLanguageProperty("contextMenu.delete"));
+	public ContextMenu(TreeClickListener treeClickListener) {
+		JMenuItem deleteUser = new JMenuItem(FrameManager.getLanguageProperty("contextMenu.delete"));
+		deleteUser.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new DeleteAccountTask(treeClickListener).perform();
+			}
+		});
 		add(deleteUser);
-		renameUser = new JMenuItem(FrameManager.getLanguageProperty("contextMenu.rename"));
+		JMenuItem renameUser = new JMenuItem(FrameManager.getLanguageProperty("contextMenu.rename"));
+		renameUser.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new RenameAccountTast(treeClickListener).perform();
+			}
+		});
 		add(renameUser);
-		changePass = new JMenuItem(FrameManager.getLanguageProperty("contextMenu.change"));
+
+
+		JMenuItem changePass = new JMenuItem(FrameManager.getLanguageProperty("contextMenu.change"));
+		changePass.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new ChangePasswordTask(treeClickListener).perform();
+			}
+		});
 		add(changePass);
 	}
 }

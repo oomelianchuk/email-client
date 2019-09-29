@@ -4,7 +4,7 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
-import actionclasses.BackgroundAction;
+import actionclasses.ProgressBarAction;
 import gui.mainframe.MainFrame;
 import gui.mainframe.ProgressBarPanel;
 
@@ -12,9 +12,9 @@ public class ProgressBarInMainFrame extends SwingWorker<Void, Void> {
 	private MainFrame mainFrame;
 	private JProgressBar progressBar;
 	private JLabel label;
-	private BackgroundAction action;
+	private ProgressBarAction action;
 
-	public ProgressBarInMainFrame(BackgroundAction action, boolean inNewFrame) {
+	public ProgressBarInMainFrame(ProgressBarAction action, boolean inNewFrame) {
 		this.action = action;
 	}
 

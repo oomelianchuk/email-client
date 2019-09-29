@@ -25,7 +25,6 @@ public class MailFolder implements Serializable {
 	}
 
 	public void addAllMessages(ArrayList<MessageContainer> messages) {
-		System.out.println(this.messages);
 		messages.forEach(message -> {
 			if (!this.messages.contains(message)) {
 				this.messages.add(message);
@@ -54,8 +53,9 @@ public class MailFolder implements Serializable {
 		return pathToFolder.split("/")[2];
 	}
 
-	public MailFolder(String pathToFolder) {
-		this.pathToFolder = pathToFolder;
+	public MailFolder(String userName, String folderName) {
+		this.pathToFolder = FrameManager.getProgramSetting("pathToUserFolders").replaceAll("\\{userName\\}", userName)
+				.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", ""));
 		this.messages = new ArrayList<MessageContainer>();
 		File folder = new File(pathToFolder);
 		if (folder.listFiles() != null) {
@@ -87,14 +87,14 @@ public class MailFolder implements Serializable {
 	}
 
 	public void serialize() throws FileNotFoundException, IOException {
-		for (MessageContainer message : messages) {
+/*		for (MessageContainer message : messages) {
 			try {
 				Files.createDirectories(Paths.get(message.getPath()));
 				message.serialize();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 
 	public ArrayList<MessageContainer> getMessages() {

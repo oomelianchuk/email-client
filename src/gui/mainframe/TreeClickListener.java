@@ -15,6 +15,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
+import actionclasses.ChangePasswordTask;
+import actionclasses.DeleteAccountTask;
+import actionclasses.OpenComposeMessageTask;
+import actionclasses.OpenMessagesTask;
+import actionclasses.RenameAccountTast;
 import data.AccountData;
 import data.GlobalDataContainer;
 import data.MailFolder;
@@ -22,7 +27,7 @@ import filewriters.XMLFileManager;
 import gui.FrameManager;
 import protokol.ConnectionManager;
 
-class TreeClickListener extends MouseAdapter {
+public class TreeClickListener extends MouseAdapter {
 	private JTree tree;
 	private DefaultTreeModel dm;
 	private MessagesPanel messagesPanel;
@@ -30,6 +35,21 @@ class TreeClickListener extends MouseAdapter {
 	public TreeClickListener(JTree tree, DefaultTreeModel dm) {
 		this.tree = tree;
 		this.dm = dm;
+	}
+
+	public String getUserName() {
+		DefaultMutableTreeNode folderNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+		TreeNode[] path = folderNode.getPath();
+		return path[1].toString();
+	}
+
+	public String getFolderName() {
+		DefaultMutableTreeNode folderNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+		TreeNode[] path = folderNode.getPath();
+		if (path.length > 2) {
+			return path[2].toString();
+		}
+		return "";
 	}
 
 	public void mouseReleased(MouseEvent e) {
@@ -42,26 +62,17 @@ class TreeClickListener extends MouseAdapter {
 		}
 	}
 
+	public void changeTitleOfLastSelectedElement(String newTitle) {
+		((DefaultMutableTreeNode) tree.getLastSelectedPathComponent()).setUserObject(newTitle);
+		((DefaultTreeModel) tree.getModel()).nodeChanged((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
+	}
+
+	public void deleteLastSelectedNode() {
+		dm.removeNodeFromParent((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
+	}
+
 	private void openContextMenu(MouseEvent e) {
-		ContextMenu menu = new ContextMenu();
-		menu.deleteUser.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				deleteUser();
-			}
-		});
-		menu.renameUser.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				renameUser();
-			}
-		});
-		menu.changePass.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				changePassword();
-			}
-		});
+		ContextMenu menu = new ContextMenu(this);
 		// if selected node is account node
 		if (tree.getPathForLocation(e.getX(), e.getY()).getPath().length == 2) {
 			// if it was selected before right click
@@ -81,87 +92,14 @@ class TreeClickListener extends MouseAdapter {
 				TreeNode[] path = folderNode.getPath();
 				// if click was not on "compose" menu
 				if (!path[path.length - 1].toString().equals(FrameManager.getLanguageProperty("node.compose"))) {
-					String userName = path[1].toString();
-					String folderName = path[2].toString();
-					MailFolder folder = new MailFolder(FrameManager.getProgramSetting("pathToUserFolders")
-							.replaceAll("\\{userName\\}", userName)
-							.replaceAll("\\{folderName\\}", folderName.replaceAll("\\[", "").replaceAll("\\]", "")));
-					GlobalDataContainer.getAccountByName(userName).addFolder(folder);
-					messagesPanel = new MessagesPanel(
-							GlobalDataContainer.getAccountByName(userName).getFolderByName(folderName));
-					messagesPanel.loadMessages();
-					if (FrameManager.mainFrame.getRightPart().getClass().equals(OpenedMessagePanel.class)) {
-						JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-						JScrollPane scrollPane = new JScrollPane(messagesPanel);
-						pane.setTopComponent(scrollPane);
-						pane.setBottomComponent((OpenedMessagePanel) FrameManager.mainFrame.getRightPart());
-						pane.setDividerLocation(300);
-						FrameManager.mainFrame.setRightPart(pane);
-						FrameManager.mainFrame.repaint();
-					} else {
-						FrameManager.mainFrame.setRightPartScrollPane(messagesPanel);
-					}
+					new OpenMessagesTask(this, messagesPanel).perform();
 				} else {
-					OpenedMessagePanel oPanel = new OpenedMessagePanel(path[1].toString(),
-							GlobalDataContainer.getAccountByName(path[1].toString()).getEmail(), "", "", "");
-					if (messagesPanel != null) {
-						messagesPanel.addOpenedMessagePanel(oPanel);
-					} else {
-						FrameManager.mainFrame.setRightPart(oPanel);
-					}
-					FrameManager.mainFrame.repaint();
+					new OpenComposeMessageTask(this, messagesPanel).perform();
 				}
 
 			}
 		} catch (NullPointerException nullPointer) {
 
 		}
-	}
-
-	private void deleteUser() {
-		String userName = tree.getLastSelectedPathComponent().toString();
-		dm.removeNodeFromParent((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
-		new FrameManager().deleteAccount(userName);
-	}
-
-	private void renameUser() {
-		String userName = tree.getLastSelectedPathComponent().toString();
-		String newUserName = JOptionPane.showInputDialog(FrameManager.mainFrame,
-				FrameManager.getLanguageProperty("renameUser.text"),
-				FrameManager.getLanguageProperty("renameUser.header"), JOptionPane.QUESTION_MESSAGE);
-		if (newUserName != null) {
-			((DefaultMutableTreeNode) tree.getLastSelectedPathComponent()).setUserObject(newUserName);
-			((DefaultTreeModel) tree.getModel())
-					.nodeChanged((DefaultMutableTreeNode) tree.getLastSelectedPathComponent());
-
-			/*
-			 * new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings")).
-			 * renameAccount(userName, newUserName);
-			 */
-			try {
-				GlobalDataContainer.getAccountByName(userName).serialize();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			GlobalDataContainer.getAccountByName(userName).setUserName(newUserName);
-			ConnectionManager connection = GlobalDataContainer.getConnectionByAccount(userName);
-			GlobalDataContainer.deleteConnection(userName);
-			GlobalDataContainer.addConnection(newUserName, connection);
-			new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", userName)).renameTo(
-					new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", newUserName)));
-		}
-	}
-
-	private void changePassword() {
-		String userName = tree.getLastSelectedPathComponent().toString();
-		String newPassword = JOptionPane.showInputDialog(FrameManager.mainFrame,
-				FrameManager.getLanguageProperty("changePassword.text"),
-				FrameManager.getLanguageProperty("changePassword.header"), JOptionPane.QUESTION_MESSAGE);
-		if (newPassword != null) {
-			GlobalDataContainer.getAccountByName(userName).setPassword(newPassword);
-		}
-		JOptionPane.showMessageDialog(FrameManager.mainFrame, FrameManager.getLanguageProperty("popup.passwordChanged"),
-				FrameManager.getLanguageProperty("popup.title.passwordChanged"), JOptionPane.PLAIN_MESSAGE);
 	}
 }

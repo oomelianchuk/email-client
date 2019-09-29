@@ -25,7 +25,7 @@ import protokol.MessageContainer;
  * class to load all for program needed data and display progress in progress
  * bar
  */
-public class Loader implements BackgroundAction {
+public class Loader implements ProgressBarAction {
 	private MainFrame mainFrame;
 	private JLabel label;
 	private JProgressBar progressBar;

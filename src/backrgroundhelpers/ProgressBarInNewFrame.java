@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
 
-import actionclasses.BackgroundAction;
+import actionclasses.ProgressBarAction;
 import gui.mainframe.MainFrame;
 import gui.mainframe.ProgressBarPanel;
 
@@ -18,10 +18,10 @@ public class ProgressBarInNewFrame implements Runnable {
 	private MainFrame mainFrame;
 	private JProgressBar progressBar;
 	private JLabel label;
-	private BackgroundAction action;
+	private ProgressBarAction action;
 	private boolean inNewFrame;
 
-	public ProgressBarInNewFrame(BackgroundAction action, boolean inNewFrame) {
+	public ProgressBarInNewFrame(ProgressBarAction action, boolean inNewFrame) {
 		super();
 		this.action = action;
 		this.inNewFrame = inNewFrame;

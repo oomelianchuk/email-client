@@ -20,7 +20,7 @@ import protokol.MessageContainer;
  * start
  *
  */
-public class MailLoader implements BackgroundAction, Runnable {
+public class MailLoader implements ProgressBarAction, Runnable {
 	private AccountData data;
 	private String protocol;
 	private ConnectionManager connectionManager;
