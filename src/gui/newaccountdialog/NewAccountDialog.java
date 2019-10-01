@@ -20,6 +20,7 @@ import javax.swing.border.EmptyBorder;
 
 import data.AccountData;
 import gui.FrameManager;
+import tasks.CreateAccountTask;
 
 /**
  * Dialog message to create new user
@@ -227,7 +228,7 @@ public class NewAccountDialog extends JFrame {
 					accountDaten.setTlsSmtp(smtpPortPanel.getPortTls().isSelected());
 				}
 				accountDaten.setRunInBackground(runInBackground.isSelected());
-				new FrameManager().createAccount(accountDaten);
+				new CreateAccountTask(accountDaten).perform(); 
 			}
 		}
 	}

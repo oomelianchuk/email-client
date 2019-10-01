@@ -1,4 +1,4 @@
-package actionclasses;
+package tasks;
 
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;

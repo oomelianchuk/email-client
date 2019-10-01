@@ -1,4 +1,4 @@
-package actionclasses;
+package tasks;
 
 import data.GlobalDataContainer;
 import gui.FrameManager;

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import actionclasses.MailLoader;
 import gui.FrameManager;
 import gui.mainframe.MainFrame;
 import gui.newaccountdialog.NewAccountDialog;
@@ -23,6 +24,7 @@ public class GlobalDataContainer {
 	private static ArrayList<AccountData> accounts = new ArrayList<AccountData>();
 	private static HashMap<String, ConnectionManager> connections = new HashMap<String, ConnectionManager>();
 	public static final Logger LOGGER = LogManager.getLogger(FrameManager.class);
+	public static HashMap<String, MailLoader> threads = new HashMap<String, MailLoader>();
 
 	public static AccountData getAccountByName(String userName) {
 		AccountData accountToCompare = new AccountData();
@@ -50,6 +52,7 @@ public class GlobalDataContainer {
 	public static void addConnection(String userName, ConnectionManager connection) {
 		connections.put(userName, connection);
 	}
+
 	public static void deleteConnection(String userName) {
 		connections.remove(userName);
 	}

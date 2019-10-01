@@ -8,6 +8,7 @@ import javax.mail.Store;
 import javax.swing.JOptionPane;
 
 import data.AccountData;
+import data.GlobalDataContainer;
 import gui.FrameManager;
 
 public class ConnectionCreatorImpl implements ConnectionCreator {
@@ -110,4 +111,34 @@ public class ConnectionCreatorImpl implements ConnectionCreator {
 			return null;
 		}
 	}
+	public boolean updateConnection(String userName) {
+		FrameManager.LOGGER.info("update connection for " + userName);
+		GlobalDataContainer.threads.forEach((name, thread) -> thread.join());
+		FrameManager.LOGGER.info("all threads paused");
+		AccountData data = GlobalDataContainer.getAccountByName(userName);
+		boolean pop = true;
+		boolean imap = true;
+		if (data.getPopServer() != null) {
+			FrameManager.LOGGER.info("check pop connection");
+			pop = GlobalDataContainer.getConnectionByAccount(userName).checkPopConnection(data);
+		}
+		if (data.getImapServer() != null) {
+			FrameManager.LOGGER.info("check imap connection");
+			imap = GlobalDataContainer.getConnectionByAccount(userName).checkImapConnection(data);
+		}
+
+		GlobalDataContainer.threads.forEach((name, thread) -> thread.runAsThread());
+		if (pop & imap) {
+			FrameManager.LOGGER.info("connection updated");
+		} else {
+			if (!pop) {
+				FrameManager.LOGGER.error("pop connection update failed");
+			}
+			if (!imap) {
+				FrameManager.LOGGER.error("imap connection update failed");
+			}
+		}
+		return pop & imap;
+	}
+
 }

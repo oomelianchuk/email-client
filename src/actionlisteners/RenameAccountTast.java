@@ -1,5 +1,7 @@
-package actionclasses;
+package actionlisteners;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -12,7 +14,7 @@ import gui.FrameManager;
 import gui.mainframe.TreeClickListener;
 import protokol.ConnectionManager;
 
-public class RenameAccountTast implements Task {
+public class RenameAccountTast implements ActionListener {
 	private TreeClickListener treeClickListener;
 
 	public RenameAccountTast(TreeClickListener treeClickListener) {
@@ -20,7 +22,7 @@ public class RenameAccountTast implements Task {
 	}
 
 	@Override
-	public void perform() {
+	public void actionPerformed(ActionEvent e) {
 		String userName = treeClickListener.getUserName();
 		String newUserName = JOptionPane.showInputDialog(FrameManager.mainFrame,
 				FrameManager.getLanguageProperty("renameUser.text"),
@@ -35,8 +37,8 @@ public class RenameAccountTast implements Task {
 					new File(FrameManager.getProgramSetting("pathToUser").replaceAll("\\{userName\\}", newUserName)));
 			try {
 				GlobalDataContainer.getAccountByName(newUserName).serialize();
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 		}
 	}

@@ -32,6 +32,7 @@ import javax.swing.JProgressBar;
 import org.apache.logging.log4j.Logger;
 
 import data.AccountData;
+import data.GlobalDataContainer;
 import gui.FrameManager;
 
 public class MessageManagerImpl implements MessageManager {
@@ -386,8 +387,9 @@ public class MessageManagerImpl implements MessageManager {
 		try {
 			// logger.info("search for messages after " + yesterday);
 			Folder folder = session.getDefaultFolder().getFolder(folderName);
-
+			System.out.println("open folder");
 			openFolder(folder, Folder.READ_ONLY, userName, logger);
+			System.out.println("opened folder");
 			Message[] messages = new MessageSearcher().findMessagesAfterDate(date, folder, userName, logger);
 			for (Message message : messages) {
 				newMessages.add(new MessageContainer(message, userName, folderName));
@@ -396,7 +398,6 @@ public class MessageManagerImpl implements MessageManager {
 				// logger.info("new messages were loaded in folder " + folderName);
 			} else {
 				// logger.info("no new messages found in folder" + folderName);
-
 			}
 			// logger.info("closing " + folder.getFullName() + " folder");
 			folder.close();
@@ -470,7 +471,7 @@ public class MessageManagerImpl implements MessageManager {
 				}
 				logger.info("set connections on update");
 				onUpdate = true;
-				boolean connected = FrameManager.updateConnections(userName);
+				boolean connected = GlobalDataContainer.getConnectionByAccount(userName).updateConnection(userName);
 				while (!connected) {
 					logger.info("try to restore connections");
 					try {
@@ -479,7 +480,7 @@ public class MessageManagerImpl implements MessageManager {
 					} catch (InterruptedException e1) {
 						logger.error("thread interrupted : " + e1.toString());
 					}
-					connected = FrameManager.updateConnections(userName);
+					connected =  GlobalDataContainer.getConnectionByAccount(userName).updateConnection(userName);
 				}
 				logger.info("connections restored");
 				try {

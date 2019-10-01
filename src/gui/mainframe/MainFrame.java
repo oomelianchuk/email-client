@@ -27,6 +27,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import actionlisteners.ChangeLookAndFeelWhileProgramRunTask;
 import data.AccountData;
 import data.MailFolder;
 import filewriters.XMLFileManager;
@@ -92,25 +93,15 @@ public class MainFrame extends JFrame {
 		settingsMenu.add(changeTheme);
 		JMenuItem systemTheme = new JMenuItem(FrameManager.getLanguageProperty("menu.theme.system"));
 		changeTheme.add(systemTheme);
-		systemTheme.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				changeTheme(UIManager.getSystemLookAndFeelClassName());
-			}
-
-		});
+		systemTheme
+				.addActionListener(new ChangeLookAndFeelWhileProgramRunTask(UIManager.getSystemLookAndFeelClassName()));
 		JMenuItem crossplatformTheme = new JMenuItem(FrameManager.getLanguageProperty("menu.theme.cross"));
 		changeTheme.add(crossplatformTheme);
-		crossplatformTheme.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				changeTheme(UIManager.getCrossPlatformLookAndFeelClassName());
-			}
-		});
+		crossplatformTheme.addActionListener(
+				new ChangeLookAndFeelWhileProgramRunTask(UIManager.getCrossPlatformLookAndFeelClassName()));
 		contentPane.add(menuBar, BorderLayout.NORTH);
 		contentPane.add(splitPane, BorderLayout.CENTER);
+
 		add(contentPane);
 	}
 
@@ -154,7 +145,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	public void addNewAccount(AccountData data) {
+	public void addNewAccountNode(AccountData data) {
 		// add new account node with all folders
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
 		DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(data.getUserName());
@@ -173,19 +164,4 @@ public class MainFrame extends JFrame {
 		tree.expandPath(new TreePath(dm.getPathToRoot(newChild.getParent())));
 	}
 
-	private void changeTheme(String lookAndFeel) {
-		try {
-			// change look and feel
-			UIManager.setLookAndFeel(lookAndFeel);
-			SwingUtilities.updateComponentTreeUI(MainFrame.this);
-			// save theme settings
-			new XMLFileManager(FrameManager.getProgramSetting("pathToAccountSettings"))
-					.changeLookAndFeel(lookAndFeel);
-		} catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException e1) {
-			e1.printStackTrace();
-			JOptionPane.showMessageDialog(FrameManager.mainFrame,
-					FrameManager.getLanguageProperty("error.unsupportedTheme"),
-					FrameManager.getLanguageProperty("error.title.unsupportedTheme"), JOptionPane.ERROR_MESSAGE);
-		}
-	}
 }

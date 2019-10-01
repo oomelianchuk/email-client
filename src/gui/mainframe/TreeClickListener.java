@@ -15,17 +15,17 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
-import actionclasses.ChangePasswordTask;
-import actionclasses.DeleteAccountTask;
-import actionclasses.OpenComposeMessageTask;
-import actionclasses.OpenMessagesTask;
-import actionclasses.RenameAccountTast;
+import actionlisteners.ChangePasswordTask;
+import actionlisteners.DeleteAccountTask;
+import actionlisteners.RenameAccountTast;
 import data.AccountData;
 import data.GlobalDataContainer;
 import data.MailFolder;
 import filewriters.XMLFileManager;
 import gui.FrameManager;
 import protokol.ConnectionManager;
+import tasks.OpenComposeMessageTask;
+import tasks.OpenMessagesTask;
 
 public class TreeClickListener extends MouseAdapter {
 	private JTree tree;

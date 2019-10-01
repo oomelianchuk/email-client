@@ -116,7 +116,7 @@ public class ConnectionManager implements ConnectionCreator, MessageManager {
 	@Override
 	public void downloadAttachment(Store session, String path, String folderName, MessageContainer messageContainer,
 			String attachmentName) {
-		 messageManager.downloadAttachment(session, path, folderName, messageContainer, attachmentName);
+		messageManager.downloadAttachment(session, path, folderName, messageContainer, attachmentName);
 	}
 
 	public void deleteMessage(String folderName, MessageContainer messageContainer) {
@@ -216,6 +216,11 @@ public class ConnectionManager implements ConnectionCreator, MessageManager {
 		} catch (MessagingException e) {
 			FrameManager.LOGGER.error("closing sessions : " + e.toString());
 		}
+	}
+
+	@Override
+	public boolean updateConnection(String userName) {
+		return connectionCreator.updateConnection(userName);
 	}
 
 }

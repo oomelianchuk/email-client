@@ -99,6 +99,7 @@ public class MailLoader implements ProgressBarAction, Runnable {
 	public void runAsThread() {
 		active = true;
 		thread = new Thread(this);
+		thread.setName(data.getUserName());
 		thread.start();
 	}
 

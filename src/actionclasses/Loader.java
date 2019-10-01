@@ -104,7 +104,7 @@ public class Loader implements ProgressBarAction {
 		if (!foldersChecked) {
 			GlobalDataContainer.deleteConnection(data.getUserName());
 		}
-		mainFrame.addNewAccount(data);
+		mainFrame.addNewAccountNode(data);
 		FrameManager.LOGGER.info("configuration for account " + data.getUserName() + " finished");
 	}
 

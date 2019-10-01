@@ -9,4 +9,6 @@ public interface ConnectionCreator {
 	Store createReadSession(String protokol, AccountData data);
 
 	Session createSendSession(AccountData data);
+
+	boolean updateConnection(String userName);
 }
