@@ -107,7 +107,7 @@ public class FrameManager
 
     public static void main(String[] args)
     {
-        String str = "four";
+        String str = "five";
 
         try (InputStream input = new FileInputStream("src/en.properties"))
         {
